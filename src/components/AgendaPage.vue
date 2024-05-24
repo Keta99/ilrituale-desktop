@@ -56,27 +56,38 @@
             {{ this.type == "day" }}
             {{ this.type == "week" }}
             {{ this.type == "month " }}
-            <v-calendar
-              ref="calendar"
-              v-model="focus"
-              color="primary"
-              locale="it"
-              :events="events"
-              :event-color="getEventColor"
-              :type="type"
-              :weekdays="week"
-              @click:event="showEvent"
-              @click:more="viewDay"
-              @click:date="viewDay"
-              @change="getEvents"
-              :interval-minutes="intervalloMinuti"
-              :start-interval="startInterval"
-              :first-interval="getFirstInterval()"
-              :interval-count="getIntervalCount()"
-              :interval-height="35"
-              :interval-format="intervalFormat"
-            >
+            <v-calendar ref="calendar" v-model="focus" color="primary" locale="it" :events="events"
+              :event-color="getEventColor" :type="type" :weekdays="week" @click:event="showEvent" @click:more="viewDay"
+              @click:date="viewDay" @change="getEvents" :interval-minutes="intervalloMinuti"
+              :start-interval="startInterval" :first-interval="getFirstInterval()" :interval-count="getIntervalCount()"
+              :interval-height="35" :interval-format="intervalFormat">
+
               <template v-slot:event="{ event }">
+                <v-menu v-model="selectedOpen" :close-on-content-click="false" :activator="selectedElement" offset-x>
+                  <v-card color="grey lighten-4" min-width="350px" flat>
+                    <v-toolbar :color="selectedEvent.color" dark>
+                      <v-btn icon @click="onSpostaEvento(selectedEvent)">
+                        <v-icon color="white">mdi-calendar</v-icon>
+                      </v-btn>
+                      <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
+                      <v-spacer></v-spacer>
+                      <v-btn icon @click="onDeletePrenotazione(selectedEvent)">
+                        <v-icon color="white">mdi-delete</v-icon>
+                      </v-btn>
+                    </v-toolbar>
+                    <v-card-text>
+                      <span v-html="selectedEvent.details"></span>
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-btn text color="secondary" @click="selectedOpen = false">
+                        Cancel
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+               
+                
+           
+                </v-menu>
                 <div class="custom-event">
                   <v-row class="justify-center" v-if="isDay">
                     <v-col cols="3" class="text-center">
@@ -89,21 +100,15 @@
                     </v-col>
                     <v-col cols="3" class="text-center">
                       <strong style="font-size: 20px">
-                        {{ event.datail.oraInizio }} - {{ event.datail.oraFine }}</strong
-                      >
+                        {{ event.datail.oraInizio }} - {{ event.datail.oraFine }}</strong>
                     </v-col>
                     <v-col cols="3" class="text-center">
                       <strong> {{ event.datail.tipologia }}</strong>
                       <tr></tr>
                       <strong v-if="event.datail.lunghezzaCapelli">
-                        Capelli {{ event.datail.lunghezzaCapelli }}</strong
-                      >
+                        Capelli {{ event.datail.lunghezzaCapelli }}</strong>
                     </v-col>
-                    <v-col cols="3" class="text-end" style="color: white">
-                      <v-btn icon @click="onDeletePrenotazione(selectedEvent)">
-                        <v-icon color="white">mdi-delete</v-icon>
-                      </v-btn>
-                    </v-col>
+
                   </v-row>
                   <v-row class="pa-1" v-if="isWeek">
                     <v-col cols="6" class="text-start">
@@ -122,14 +127,6 @@
                           event.datail.lunghezzaCapelli
                         }}
                       </tr>
-                    </v-col>
-                    <v-col cols="6" class="text-end">
-                      <v-btn icon @click="onDeletePrenotazione(selectedEvent)">
-                        <v-icon color="white">mdi-calendar</v-icon>
-                      </v-btn>
-                      <v-btn icon @click="onDeletePrenotazione(selectedEvent)">
-                        <v-icon color="white">mdi-delete</v-icon>
-                      </v-btn>
                     </v-col>
                   </v-row>
                   <v-row class="justify-start" v-if="isMouth">
@@ -158,96 +155,46 @@
         <v-card-text>
           <v-row>
             <v-col v-if="autocomplete" cols="11">
-              <v-autocomplete
-                label="Cliente"
-                prepend-icon="mdi-account"
-                v-model="prenotazione.cliente"
-                :items="persone"
-              ></v-autocomplete>
+              <v-autocomplete label="Cliente" prepend-icon="mdi-account" v-model="prenotazione.cliente"
+                :items="persone"></v-autocomplete>
             </v-col>
             <v-col v-else cols="11">
-              <v-text-field
-                label="Cliente"
-                prepend-icon="mdi-account"
-                v-model="prenotazione.cliente"
-              ></v-text-field>
+              <v-text-field label="Cliente" prepend-icon="mdi-account" v-model="prenotazione.cliente"></v-text-field>
             </v-col>
             <v-col cols="1">
               <v-checkbox v-model="autocomplete"></v-checkbox>
             </v-col>
 
             <v-col cols="11">
-              <v-text-field
-                label="Cellulare"
-                prepend-icon="mdi-phone"
-                v-model="prenotazione.cellulare"
-              ></v-text-field>
+              <v-text-field label="Cellulare" prepend-icon="mdi-phone" v-model="prenotazione.cellulare"></v-text-field>
             </v-col>
             <v-col cols="8">
-              <v-autocomplete
-                v-model="tipologia"
-                prepend-icon="mdi-alpha-t"
-                :items="items"
-                multiple
-                class="ma-2"
-                label="Tipo Prenotazione"
-                dense
-                hide-details
-              >
+              <v-autocomplete v-model="tipologia" prepend-icon="mdi-alpha-t" :items="items" multiple class="ma-2"
+                label="Tipo Prenotazione" dense hide-details>
               </v-autocomplete>
             </v-col>
             <v-col cols="4">
-              <v-select
-                :disabled="!this.tipologia.includes(1)"
-                prepend-icon="mdi-size-l"
-                v-model="prenotazione.lunghezzaCapelli"
-                :items="itemslunghezza"
-                class="ma-2"
-                label="Lunghezza Capelli"
-                dense
-              ></v-select>
+              <v-select :disabled="!this.tipologia.includes(1)" prepend-icon="mdi-size-l"
+                v-model="prenotazione.lunghezzaCapelli" :items="itemslunghezza" class="ma-2" label="Lunghezza Capelli"
+                dense></v-select>
             </v-col>
             <v-col>
-              <v-menu
-                v-model="menuDate"
-                :close-on-content-click="false"
-                :nudge-right="40"
-                transition="scale-transition"
-                offset-y
-                min-width="auto"
-              >
+              <v-menu v-model="menuDate" :close-on-content-click="false" :nudge-right="40" transition="scale-transition"
+                offset-y min-width="auto">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    v-model="date"
-                    label="Data Appuntamento"
-                    prepend-icon="mdi-calendar"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                  ></v-text-field>
+                  <v-text-field v-model="date" label="Data Appuntamento" prepend-icon="mdi-calendar" readonly
+                    v-bind="attrs" v-on="on"></v-text-field>
                 </template>
                 <v-date-picker v-model="date" @input="menuDate = false"></v-date-picker>
               </v-menu>
               {{ data }}
             </v-col>
             <v-col>
-              <v-menu
-                v-model="menuTime"
-                :close-on-content-click="false"
-                :nudge-right="40"
-                transition="scale-transition"
-                offset-y
-                min-width="auto"
-              >
+              <v-menu v-model="menuTime" :close-on-content-click="false" :nudge-right="40" transition="scale-transition"
+                offset-y min-width="auto">
                 <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    v-model="time"
-                    label="Orario Appuntamento"
-                    prepend-icon="mdi-clock"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                  ></v-text-field>
+                  <v-text-field v-model="time" label="Orario Appuntamento" prepend-icon="mdi-clock" readonly
+                    v-bind="attrs" v-on="on"></v-text-field>
                 </template>
                 <v-time-picker format="24hr" @input="menuTime = false" v-model="time">
                 </v-time-picker>
@@ -259,27 +206,12 @@
         <v-card-text>
           <div>
             <v-col>
-              <v-select
-                :items="slotDurations"
-                label="Seleziona durata slot"
-                v-model="selectedSlotDuration"
-              ></v-select>
-              <v-select
-                :items="weekDays"
-                label="Seleziona giorni della settimana"
-                v-model="selectedWeekDays"
-                multiple
-                chips
-              ></v-select>
+              <v-select :items="slotDurations" label="Seleziona durata slot" v-model="selectedSlotDuration"></v-select>
+              <v-select :items="weekDays" label="Seleziona giorni della settimana" v-model="selectedWeekDays" multiple
+                chips></v-select>
               <v-btn @click="getAvailableSlots">Mostra slot disponibili</v-btn>
-              <v-select
-                :items="formattedSlots"
-                label="vedi slot"
-                multiple
-                chips
-                v-model="selectedSlots"
-              ></v-select>
-              {{selectedSlots}}
+              <v-select :items="formattedSlots" label="vedi slot" multiple chips v-model="selectedSlots"></v-select>
+              {{ selectedSlots }}
               <v-list>
                 <v-list-item v-for="(slot, index) in selectedSlots" :key="index">
                   {{ slot.text }}
@@ -288,43 +220,12 @@
             </v-col>
           </div>
         </v-card-text>
-        <!-- <v-card-text>
-          <div>
-            <v-row>
-              <v-col cols="4">
-                <v-checkbox label="Frequenza di 1 volta al mese nello stesso giorno"></v-checkbox>
-              </v-col>
-              <v-col cols="4">
-                <v-checkbox label="Frequenza di 2 volta al mese nello stesso giorno"></v-checkbox>
-              </v-col>
-              <v-col cols="1">
-                <v-checkbox v-model="autocomplete"></v-checkbox>
-              </v-col>
-
-            </v-row>
-
-          </div>
-        </v-card-text> -->
-
         <v-card-actions>
-          <!-- <v-btn class="withoutupercase" color="primary"  @click="dialog = false">
-            Chiudi
-          </v-btn> -->
-
-          <v-btn
-            class="withoutupercase"
-            color="red"
-            style="color: white"
-            @click="resetModelPrenotazione"
-          >
+          <v-btn class="withoutupercase" color="red" style="color: white" @click="resetModelPrenotazione">
             Reset
           </v-btn>
           <v-spacer></v-spacer>
-          <v-btn
-            @click="insertPrenotazione(prenotazione)"
-            color="success"
-            class="withoutupercase"
-          >
+          <v-btn @click="insertPrenotazione(prenotazione)" color="success" class="withoutupercase">
             Salva
           </v-btn>
         </v-card-actions>
@@ -332,8 +233,7 @@
       </v-card>
     </v-dialog>
   </div>
-</template>
-
+</template> 
 <script>
 import { ipcRenderer } from "electron";
 export default {
@@ -342,12 +242,10 @@ export default {
     dialog: false,
     menuDate: false,
     menuTime: false,
-    time: null,
     intervalloMinuti: 15,
-    data: null,
-    selectedSlots:[],
+    selectedSlots: [],
     focus: "",
-    tipologia: [],
+    tipologia: [0, 1],
     type: "week",
     isDay: false,
     isWeek: false,
@@ -378,14 +276,18 @@ export default {
     events: [],
     prenotazioni: [],
     prenotazione: {
-      cliente: "",
-      tipologia: "",
-      data: "",
-      oraInizio: "",
-      oraFine: "",
+      cliente: "Francesco Tammaro",
+      tipologia: "Barba#Capelli",
+      data: "2024-05-24",
+      oraInizio: "07:30",
+      oraFine: "08:00",
       name: "test",
-      cellulare: "",
+      cellulare: "3922827514",
+      lunghezzaCapelli: "Lunghi",
+
     },
+    data: "2024-05-25",
+    time: "07:30",
     users: [],
     lunghezzaCapelli: [],
     persone: [
@@ -413,9 +315,9 @@ export default {
       },
     ],
     selectedSlotDuration: 30,
-    selectedWeekDays:[],
+    selectedWeekDays: [],
     slotDurations: [20, 30, 60],
-    availableSlots:[],
+    availableSlots: [],
     weekDays: [
 
       { text: "Martedì", value: 2 },
@@ -430,7 +332,7 @@ export default {
   }),
 
   mounted() {
-    console.log(this.$refs.calendar.title);
+    console.log("calendar", this.$refs.calendar);
 
     //this.caricaPrenotazioni();
 
@@ -451,7 +353,9 @@ export default {
     },
   },
   methods: {
-    onDeletePrenotazione(prenotazione) {
+
+    async onDeletePrenotazione(prenotazione) {
+
       console.log("delete", prenotazione);
       let id = prenotazione.datail.id;
       ipcRenderer.send("delete-prenotazione", { id: id });
@@ -459,11 +363,13 @@ export default {
       ipcRenderer.removeAllListeners("risposta");
       ipcRenderer.on("risposta", async (e, data) => {
         console.log(data);
-        console.log("Risposta ricevuta.");
-        this.caricaPrenotazioni();
-        this.$refs.calendar.prev();
-        this.$refs.calendar.next();
       });
+      await this.getEvents();
+      this.$nextTick(() => {
+        this.next(); 
+        this.setWeek();
+        console.log("Aggiornamento completato!");
+      })
     },
 
     caricaPrenotazioni() {
@@ -479,7 +385,7 @@ export default {
       });
     },
 
-    insertPrenotazione(prenotazione) {
+    async insertPrenotazione(prenotazione) {
       console.log(prenotazione);
       ipcRenderer.send("save-prenotazione", { prenotazione });
       // Rimuovi eventuali vecchi listener per evitare duplicati
@@ -487,10 +393,15 @@ export default {
       ipcRenderer.on("risposta", async (e, data) => {
         console.log(data);
         console.log("Risposta ricevuta.");
-        this.dialog = false;
-        this.resetModelPrenotazione();
-        this.caricaPrenotazioni();
       });
+      this.dialog = false;
+      this.resetModelPrenotazione();
+      await this.getEvents();
+      this.next(); 
+        this.setWeek();
+      this.$nextTick(() => {
+        console.log("Aggiornamento completato!");
+      })
     },
 
     mapValuesToText(values) {
@@ -518,7 +429,6 @@ export default {
         oraFine: "",
         name: "test",
         cellulare: "",
-        lunghezzaCapelli: "",
       }),
         (this.time = null),
         (this.date = null),
@@ -529,6 +439,10 @@ export default {
 
     setToday() {
       this.type = "day";
+      this.focus = "";
+    },
+    setWeek() {
+      this.type = "week";
       this.focus = "";
     },
     prev() {
@@ -571,7 +485,7 @@ export default {
       console.log(prenotazione);
     },
 
-    getEvents() {
+    async getEvents() {
       const events = [];
       ipcRenderer.send("load-prenotazioni", {});
       // Rimuovi eventuali vecchi listener per evitare duplicati
@@ -579,17 +493,18 @@ export default {
       ipcRenderer.once("risposta", async (e, data) => {
         console.log("data", data);
         let rows = await data;
-        rows.forEach((element) => {
-          console.log(element);
-          events.push({
-            name: element.cliente,
-            datail: element,
-            start: element.data + " " + element.oraInizio,
-            end: element.data + " " + element.oraFine,
-            color: this.colors[this.rnd(0, this.colors.length - 1)],
-            timed: true,
+        if (rows.length > 0)
+          rows.forEach((element) => {
+            console.log(element);
+            events.push({
+              name: element.cliente,
+              datail: element,
+              start: element.data + " " + element.oraInizio,
+              end: element.data + " " + element.oraFine,
+              color: this.colors[this.rnd(0, this.colors.length - 1)],
+              timed: true,
+            });
           });
-        });
         console.log("Risposta ricevuta.");
       });
       this.events = events;
@@ -731,17 +646,17 @@ export default {
         console.log("0", this.tipologia.includes(0));
         if (this.tipologia.includes(0)) {
           this.prenotazione.oraFine = this.addTimeToTimeString(params, 0, 20);
-          this.dataBestOccurence = this.getAvailableSlotsForOperation(20);
+
         }
         console.log("1", this.tipologia.includes(1));
         console.log(this.lunghezzaCapelli);
         if (this.tipologia.includes(1) || this.tipologia.includes(2)) {
           if (this.lunghezzaCapelli === "Corti") {
             this.prenotazione.oraFine = this.addTimeToTimeString(params, 0, 20);
-            this.dataBestOccurence = this.getAvailableSlotsForOperation(30);
+
           } else if (this.lunghezzaCapelli === "Lunghi") {
             this.prenotazione.oraFine = this.addTimeToTimeString(params, 0, 30);
-            this.dataBestOccurence = this.getAvailableSlotsForOperation(40);
+
           }
         }
 
