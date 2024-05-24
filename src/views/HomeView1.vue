@@ -3,18 +3,8 @@
           id="inspire"
           :style="{ background: $vuetify.theme.themes.dark.background }"
         >
-        <NavBar/>
-         <v-row class="pa-3">
-              <v-col cols="12" sm="12">
-                <!-- <InfoPage/> -->
-                <v-row>
-                  <v-col cols="12" sm="12">
-                    <AgendaPage />
-                  </v-col>
-                </v-row>
-              </v-col>
-            </v-row> 
-          
+            <NavBar/>
+              <router-view />
         </v-app>
              <!-- <SideBar></SideBar> -->
       </template>
@@ -25,7 +15,7 @@
       // import SideBar from "@/components/SideBar.vue";
       import NavBar from "../components/NavBar.vue";
       //  import InfoPage from "../components/InfoPage.vue";
-      import AgendaPage from "../components/AgendaPage.vue";
+      // import AgendaPage from "../components/AgendaPage.vue";
       //  import DoctorPage from "../components/DoctorPage.vue";
       export default {
         data: () => ({
@@ -38,7 +28,7 @@
             NavBar,
             // InfoPage,
           //  DoctorPage,
-          AgendaPage
+          // AgendaPage
       },
       };
       </script>

@@ -33,7 +33,8 @@ const createDatabaseIfNotExists = async () => {
           data TEXT,
           oraInizio TEXT,
           oraFine TEXT,
-          cellulare TEXT
+          cellulare TEXT,
+          lunghezzaCapelli TEXT
         )`);
         db.run(`CREATE TABLE IF NOT EXISTS cliente (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -146,10 +147,10 @@ const insertPrenotazione = async (prenotazione) => {
   try {
     db = await connectDatabase();
     await new Promise((resolve, reject) => {
-      db.run(`INSERT INTO prenotazioni (name, cliente, tipologia, data, oraInizio, oraFine, cellulare) 
-              VALUES (?, ?, ?, ?, ?, ?, ?)`, 
+      db.run(`INSERT INTO prenotazioni (name, cliente, tipologia, data, oraInizio, oraFine, cellulare, lunghezzaCapelli) 
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, 
              [prenotazione.name, prenotazione.cliente, prenotazione.tipologia, prenotazione.data, 
-              prenotazione.oraInizio, prenotazione.oraFine, prenotazione.cellulare], 
+              prenotazione.oraInizio, prenotazione.oraFine, prenotazione.cellulare, prenotazione.lunghezzaCapelli], 
              function(err) {
         if (err) {
           console.error('Errore durante l\'inserimento della prenotazione:', err.message);
@@ -220,6 +221,30 @@ const deleteUser = async (id) => {
     throw error; // Rilancia l'errore per gestirlo al livello superiore
   }
 };
+const deletePrenotazione = async (id) => {
+  let db;
+  try {
+    db = await connectDatabase();
+    await new Promise((resolve, reject) => {
+      db.run(`DELETE FROM prenotazioni WHERE id = ?`, [id], function(err) {
+        if (err) {
+          console.error('Errore durante l\'eliminazione della prenotazione :', err.message);
+          reject(err); // Se si verifica un errore, rifiuta la Promise
+        } else {
+          console.log(`Prenotazione eliminata con ID: ${id}`);
+          resolve(); // Risolve la Promise quando l'eliminazione è completata
+        }
+      });
+    });
+    db.close();
+  } catch (error) {
+    console.error('Errore durante l\'eliminazione dell\'utente:', error);
+    if (db) {
+      db.close(); // Chiudi il database in caso di errore
+    }
+    throw error; // Rilancia l'errore per gestirlo al livello superiore
+  }
+};
 // Funzione asincrona per la chiusura del database
 const closeDatabase = async () => {
   let db;
@@ -250,4 +275,4 @@ const closeDatabase = async () => {
         selectUsers, 
         SelectPrenotazione,
         insertPrenotazione,
-        insertUser, deleteUser, closeDatabase };
+        insertUser, deleteUser,deletePrenotazione, closeDatabase };

@@ -4,7 +4,7 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 const isDevelopment = process.env.NODE_ENV !== 'production';
 import path from 'path';
-import {db,connectDatabase,SelectPrenotazione,insertPrenotazione, selectUsers,insertUser, closeDatabase} from './dbmanager';
+import {db,connectDatabase,SelectPrenotazione,insertPrenotazione, selectUsers,insertUser, closeDatabase ,deletePrenotazione} from './dbmanager';
 // Creazione della finestra principale
 let mainWindow = null;
 
@@ -121,6 +121,19 @@ ipcMain.on('save-prenotazione',async (event,data) => {
     esito :true,
     response:response,
     data:prenotazione,
+  }
+  await mainWindow.webContents.send('risposta',risposta);
+});
+
+ipcMain.on('delete-prenotazione',async (event,data) => {
+  console.log(event);
+  console.log(data);
+  let id = data.id;
+  await deletePrenotazione(id);
+  let risposta = {
+    esito :true,
+    id:id,
+    data:data,
   }
   await mainWindow.webContents.send('risposta',risposta);
 });

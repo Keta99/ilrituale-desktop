@@ -1,22 +1,11 @@
 <template>
   <div>
     <v-card color="white" class="rounded-lg" flat>
-
       <v-row class="fill-height">
-        <div>
-          <v-row>
-            <v-col v-for="user in users" :key="user.id">
-              {{ user.name }}
-            </v-col>
-          </v-row>
-
-        </div>
         <v-col>
-          <v-sheet height="80">
+          <v-sheet height="100">
             <v-btn text small color="red" @click="caricaPrenotazioni()">
-              <v-icon small>
-                mdi-calendar
-              </v-icon>
+              <v-icon small> mdi-calendar </v-icon>
               Carica Prenotazioni
             </v-btn>
             <v-toolbar flat>
@@ -24,15 +13,10 @@
                 Oggi
               </v-btn>
               <v-btn fab text small color="grey darken-2" @click="prev">
-                <v-icon small>
-                  mdi-chevron-left
-                </v-icon>
+                <v-icon small> mdi-chevron-left </v-icon>
               </v-btn>
               <v-btn fab text small color="grey darken-2" @click="next">
-                <v-icon small>
-                  mdi-chevron-right
-                </v-icon>
-
+                <v-icon small> mdi-chevron-right </v-icon>
               </v-btn>
 
               <v-toolbar-title v-if="$refs.calendar">
@@ -43,9 +27,7 @@
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn outlined color="grey darken-2" v-bind="attrs" v-on="on">
                     <span>{{ typeToLabel[type] }}</span>
-                    <v-icon right>
-                      mdi-menu-down
-                    </v-icon>
+                    <v-icon right> mdi-menu-down </v-icon>
                   </v-btn>
                 </template>
                 <v-list>
@@ -69,117 +51,203 @@
               </div>
             </v-toolbar>
           </v-sheet>
-          <v-sheet height="700">
-            <v-calendar ref="calendar" v-model="focus" color="primary" locale="it" :events="events"
-              :event-color="getEventColor" :type="type" :weekdays="week" @click:event="showEvent" @click:more="viewDay"
-              @click:date="viewDay" @change="getEvents" :interval-minutes="intervalloMinuti"
-              :start-interval="startInterval" :first-interval="getFirstInterval()" :interval-count="getIntervalCount()"
-              :interval-height="35" :interval-format="intervalFormat">
-              <template #event-content="{ event }">
+          <v-sheet height="550">
+            {{ this.type }}
+            {{ this.type == "day" }}
+            {{ this.type == "week" }}
+            {{ this.type == "month " }}
+            <v-calendar
+              ref="calendar"
+              v-model="focus"
+              color="primary"
+              locale="it"
+              :events="events"
+              :event-color="getEventColor"
+              :type="type"
+              :weekdays="week"
+              @click:event="showEvent"
+              @click:more="viewDay"
+              @click:date="viewDay"
+              @change="getEvents"
+              :interval-minutes="intervalloMinuti"
+              :start-interval="startInterval"
+              :first-interval="getFirstInterval()"
+              :interval-count="getIntervalCount()"
+              :interval-height="35"
+              :interval-format="intervalFormat"
+            >
+              <template v-slot:event="{ event }">
+                <div class="custom-event">
+                  <v-row class="justify-center" v-if="isDay">
+                    <v-col cols="3" class="text-center">
+                      isDay
+                      <strong style="font-size: 15px">{{ event.name }}</strong>
+                      <tr></tr>
+                      <strong style="font-size: 15px">{{
+                        event.datail.cellulare
+                      }}</strong>
+                    </v-col>
+                    <v-col cols="3" class="text-center">
+                      <strong style="font-size: 20px">
+                        {{ event.datail.oraInizio }} - {{ event.datail.oraFine }}</strong
+                      >
+                    </v-col>
+                    <v-col cols="3" class="text-center">
+                      <strong> {{ event.datail.tipologia }}</strong>
+                      <tr></tr>
+                      <strong v-if="event.datail.lunghezzaCapelli">
+                        Capelli {{ event.datail.lunghezzaCapelli }}</strong
+                      >
+                    </v-col>
+                    <v-col cols="3" class="text-end" style="color: white">
+                      <v-btn icon @click="onDeletePrenotazione(selectedEvent)">
+                        <v-icon color="white">mdi-delete</v-icon>
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                  <v-row class="pa-1" v-if="isWeek">
+                    <v-col cols="6" class="text-start">
+                      <tr>
+                        {{
+                          event.name
+                        }}
+                      </tr>
+                      <tr>
+                        {{
+                          event.datail.tipologia
+                        }}
+                        <v-icon size="small"> fa-scissors </v-icon>
 
-                <div class="custom-event" :style="{ backgroundColor: event.color }">
-                  <strong>{{ event.name }}</strong>
-                  <p>{{ event.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }} - {{
-                    event.end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}</p>
+                        {{
+                          event.datail.lunghezzaCapelli
+                        }}
+                      </tr>
+                    </v-col>
+                    <v-col cols="6" class="text-end">
+                      <v-btn icon @click="onDeletePrenotazione(selectedEvent)">
+                        <v-icon color="white">mdi-calendar</v-icon>
+                      </v-btn>
+                      <v-btn icon @click="onDeletePrenotazione(selectedEvent)">
+                        <v-icon color="white">mdi-delete</v-icon>
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                  <v-row class="justify-start" v-if="isMouth">
+                    <v-col cols="6" class="text-start">
+                      <strong class="ml-1" style="font-size: 12px">{{
+                        event.name
+                      }}</strong>
+                    </v-col>
+                    <!-- <v-col cols="6" class="text-end">
+                        <v-icon class="pb-1 mr-1 mb-0"  size="medium"  color="white" @click="onDeletePrenotazione(selectedEvent)">mdi-delete</v-icon>
+                    </v-col> -->
+                  </v-row>
                 </div>
               </template>
             </v-calendar>
-            <v-menu v-model="selectedOpen" :close-on-content-click="false" :activator="selectedElement" offset-x>
-              <v-card color="grey lighten-4" min-width="350px" flat>
-                <v-toolbar :color="selectedEvent.color" dark>
-
-                  <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
-                  <v-spacer></v-spacer>
-                  <v-btn icon>
-                    <v-icon>mdi-delete</v-icon>
-                  </v-btn>
-
-
-                  <!-- <v-btn icon>
-                    <v-icon>mdi-heart</v-icon>
-                  </v-btn> -->
-
-
-                </v-toolbar>
-                <v-card-text>
-                  <v-row>
-                    <v-col>
-                     {{ selectedEvent.datail}}
-                    </v-col>
-                  </v-row>
-
-                </v-card-text>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-
-                  <v-btn text color="danger" @click="selectedOpen = false">
-                    Chiudi
-                  </v-btn>
-                  <v-btn text color="secondary" @click="selectedOpen = false">
-                    Sposta
-                  </v-btn>
-                  <v-spacer></v-spacer>
-                </v-card-actions>
-              </v-card>
-            </v-menu>
           </v-sheet>
-
         </v-col>
       </v-row>
     </v-card>
-    <v-dialog transition="dialog-bottom-transition" max-width="700" v-model="dialog">
-      <v-card>
-        <v-card-title class="justify-center">Prenotazione</v-card-title>
-        <hr>
+    <v-dialog transition="dialog-bottom-transition" max-width="768" v-model="dialog">
+      <v-card max-width="768">
+        <v-card-title class="justify-center">
+          <span>Prenotazione</span>
+        </v-card-title>
+        <hr />
         <v-card-text>
           <v-row>
             <v-col v-if="autocomplete" cols="11">
-              <v-autocomplete label="Cliente" v-model="prenotazione.cliente" :items="persone"></v-autocomplete>
+              <v-autocomplete
+                label="Cliente"
+                prepend-icon="mdi-account"
+                v-model="prenotazione.cliente"
+                :items="persone"
+              ></v-autocomplete>
             </v-col>
             <v-col v-else cols="11">
-              <v-text-field label="Cliente" v-model="prenotazione.cliente"></v-text-field>
+              <v-text-field
+                label="Cliente"
+                prepend-icon="mdi-account"
+                v-model="prenotazione.cliente"
+              ></v-text-field>
             </v-col>
             <v-col cols="1">
               <v-checkbox v-model="autocomplete"></v-checkbox>
             </v-col>
+
+            <v-col cols="11">
+              <v-text-field
+                label="Cellulare"
+                prepend-icon="mdi-phone"
+                v-model="prenotazione.cellulare"
+              ></v-text-field>
+            </v-col>
             <v-col cols="8">
-              <v-select v-model="tipologia" :items="items" multiple chips class="ma-2" label="Tipo Prenotazione"
-                variant="outlined" dense hide-details>
-                <template v-slot:selection="{ item, index }">
-                  <v-chip :key="index" label outlined color="primary" small>
-                    {{ item.text }}
-                    <v-icon> mdi-chair</v-icon>
-                    <v-icon> mdi-content-cut</v-icon>
-                  </v-chip>
-                </template>
-              </v-select>
+              <v-autocomplete
+                v-model="tipologia"
+                prepend-icon="mdi-alpha-t"
+                :items="items"
+                multiple
+                class="ma-2"
+                label="Tipo Prenotazione"
+                dense
+                hide-details
+              >
+              </v-autocomplete>
             </v-col>
-            <v-col cols="4" class="mt-3">
-              <template v-if="this.tipologia.includes(1)">
-                <v-select v-model="lunghezzaCapelli" :items="itemslunghezza" class="ma-2" label="Lunghezza Capelli"
-                  dense></v-select>
-              </template>
-            </v-col>
-            <v-col cols="12">
-              <v-text-field label="Cellulare" v-model="prenotazione.cellulare"></v-text-field>
+            <v-col cols="4">
+              <v-select
+                :disabled="!this.tipologia.includes(1)"
+                prepend-icon="mdi-size-l"
+                v-model="prenotazione.lunghezzaCapelli"
+                :items="itemslunghezza"
+                class="ma-2"
+                label="Lunghezza Capelli"
+                dense
+              ></v-select>
             </v-col>
             <v-col>
-              <v-menu v-model="menuDate" :close-on-content-click="false" :nudge-right="40" transition="scale-transition"
-                offset-y min-width="auto">
+              <v-menu
+                v-model="menuDate"
+                :close-on-content-click="false"
+                :nudge-right="40"
+                transition="scale-transition"
+                offset-y
+                min-width="auto"
+              >
                 <template v-slot:activator="{ on, attrs }">
-                  <v-text-field v-model="date" label="Data Appuntamento" prepend-icon="mdi-calendar" readonly
-                    v-bind="attrs" v-on="on"></v-text-field>
+                  <v-text-field
+                    v-model="date"
+                    label="Data Appuntamento"
+                    prepend-icon="mdi-calendar"
+                    readonly
+                    v-bind="attrs"
+                    v-on="on"
+                  ></v-text-field>
                 </template>
                 <v-date-picker v-model="date" @input="menuDate = false"></v-date-picker>
               </v-menu>
               {{ data }}
             </v-col>
             <v-col>
-              <v-menu v-model="menuTime" :close-on-content-click="false" :nudge-right="40" transition="scale-transition"
-                offset-y min-width="auto">
+              <v-menu
+                v-model="menuTime"
+                :close-on-content-click="false"
+                :nudge-right="40"
+                transition="scale-transition"
+                offset-y
+                min-width="auto"
+              >
                 <template v-slot:activator="{ on, attrs }">
-                  <v-text-field v-model="time" label="Orario Appuntamento" prepend-icon="mdi-clock" readonly
-                    v-bind="attrs" v-on="on"></v-text-field>
+                  <v-text-field
+                    v-model="time"
+                    label="Orario Appuntamento"
+                    prepend-icon="mdi-clock"
+                    readonly
+                    v-bind="attrs"
+                    v-on="on"
+                  ></v-text-field>
                 </template>
                 <v-time-picker format="24hr" @input="menuTime = false" v-model="time">
                 </v-time-picker>
@@ -190,7 +258,34 @@
         </v-card-text>
         <v-card-text>
           <div>
-            {{ dataBestOccurence }}
+            <v-col>
+              <v-select
+                :items="slotDurations"
+                label="Seleziona durata slot"
+                v-model="selectedSlotDuration"
+              ></v-select>
+              <v-select
+                :items="weekDays"
+                label="Seleziona giorni della settimana"
+                v-model="selectedWeekDays"
+                multiple
+                chips
+              ></v-select>
+              <v-btn @click="getAvailableSlots">Mostra slot disponibili</v-btn>
+              <v-select
+                :items="formattedSlots"
+                label="vedi slot"
+                multiple
+                chips
+                v-model="selectedSlots"
+              ></v-select>
+              {{selectedSlots}}
+              <v-list>
+                <v-list-item v-for="(slot, index) in selectedSlots" :key="index">
+                  {{ slot.text }}
+                </v-list-item>
+              </v-list>
+            </v-col>
           </div>
         </v-card-text>
         <!-- <v-card-text>
@@ -212,22 +307,35 @@
         </v-card-text> -->
 
         <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn @click="insertPrenotazione(prenotazione)" color="success" class="withoutupercase">
-            Salva
+          <!-- <v-btn class="withoutupercase" color="primary"  @click="dialog = false">
+            Chiudi
+          </v-btn> -->
+
+          <v-btn
+            class="withoutupercase"
+            color="red"
+            style="color: white"
+            @click="resetModelPrenotazione"
+          >
+            Reset
           </v-btn>
           <v-spacer></v-spacer>
+          <v-btn
+            @click="insertPrenotazione(prenotazione)"
+            color="success"
+            class="withoutupercase"
+          >
+            Salva
+          </v-btn>
         </v-card-actions>
         {{ prenotazione }}
       </v-card>
-
     </v-dialog>
-
   </div>
 </template>
 
 <script>
-import { ipcRenderer } from 'electron'
+import { ipcRenderer } from "electron";
 export default {
   data: () => ({
     dataBestOccurence: [],
@@ -237,22 +345,36 @@ export default {
     time: null,
     intervalloMinuti: 15,
     data: null,
-    focus: '',
+    selectedSlots:[],
+    focus: "",
     tipologia: [],
-    type: 'month',
+    type: "week",
+    isDay: false,
+    isWeek: false,
+    isMouth: false,
     typeToLabel: {
-      month: 'Mese',
-      week: 'Settimana',
-      day: 'Giorno'
+      month: "Mese",
+      week: "Settimana",
+      day: "Giorno",
     },
-
     week: [2, 3, 4, 5, 6],
     startInterval: 2,
     selectedEvent: {},
     selectedElement: null,
     selectedOpen: false,
-    colors: ['blue', 'indigo', 'deep-purple', 'cyan', 'green', 'orange', 'grey darken-1'],
-    titles: ['Schampo Taglio Barba', 'Schampo Taglio', 'Taglio', 'Permanente'],
+    colors: [
+      "blue",
+      "indigo",
+      "deep-purple",
+      "cyan",
+      "green",
+      "orange",
+      "grey darken-1",
+      "primary",
+      "pink",
+      "purple",
+    ],
+    titles: ["Schampo Taglio Barba", "Schampo Taglio", "Taglio", "Permanente"],
     events: [],
     prenotazioni: [],
     prenotazione: {
@@ -266,31 +388,41 @@ export default {
     },
     users: [],
     lunghezzaCapelli: [],
-    persone: ["Francesco Tammaro", "Francesco mmaro", "Francesco Tamaro", "Francescomaro", "Fncesco Tammo", "Fancesco Tammro"],
-    autocomplete: true,
-    itemslunghezza: [
-      {
-        "value": 0,
-        "text": "Corti"
-      },
-      {
-        "value": 1,
-        "text": "Lunghi"
-      }
+    persone: [
+      "Francesco Tammaro",
+      "Francesco mmaro",
+      "Francesco Tamaro",
+      "Francescomaro",
+      "Fncesco Tammo",
+      "Fancesco Tammro",
     ],
+    autocomplete: true,
+    itemslunghezza: ["Corti", "Lunghi"],
     items: [
       {
-        "value": 0,
-        "text": "Barba"
+        value: 0,
+        text: "Barba",
       },
       {
-        "value": 1,
-        "text": "Capelli"
+        value: 1,
+        text: "Capelli",
       },
       {
-        "value": 2,
-        "text": "Permanente"
+        value: 2,
+        text: "Permanente",
       },
+    ],
+    selectedSlotDuration: 30,
+    selectedWeekDays:[],
+    slotDurations: [20, 30, 60],
+    availableSlots:[],
+    weekDays: [
+
+      { text: "Martedì", value: 2 },
+      { text: "Mercoledì", value: 3 },
+      { text: "Giovedì", value: 4 },
+      { text: "Venerdì", value: 5 },
+      { text: "Sabato", value: 6 },
     ],
     activePicker: null,
     date: null,
@@ -299,31 +431,48 @@ export default {
 
   mounted() {
     console.log(this.$refs.calendar.title);
-    console.log(window);
-    //this.caricaPrenotazioni();
-    this.type = 'day'
-    console.log("PRENOTAZIONI ", this.prenotazioni);
-    this.getAvailableSlotsForOperation(30)
 
+    //this.caricaPrenotazioni();
+
+    console.log("PRENOTAZIONI ", this.prenotazioni);
+    (this.type = "week"), (this.isWeek = true);
   },
   created() {
     console.log(window);
     console.log(ipcRenderer);
+    this.type = "day";
+  },
+  computed: {
+    formattedSlots() {
+      return this.availableSlots.map((slot) => ({
+        text: `${slot.start} - ${slot.end}`,
+        value: slot,
+      }));
+    },
   },
   methods: {
-    mapValuesToText(values) {
-      return values.map(value => {
-        const item = this.items.find(item => item.value === value);
-        return item ? item.text : 'Unknown';
-      }).join('#');
+    onDeletePrenotazione(prenotazione) {
+      console.log("delete", prenotazione);
+      let id = prenotazione.datail.id;
+      ipcRenderer.send("delete-prenotazione", { id: id });
+      // Rimuovi eventuali vecchi listener per evitare duplicati
+      ipcRenderer.removeAllListeners("risposta");
+      ipcRenderer.on("risposta", async (e, data) => {
+        console.log(data);
+        console.log("Risposta ricevuta.");
+        this.caricaPrenotazioni();
+        this.$refs.calendar.prev();
+        this.$refs.calendar.next();
+      });
     },
+
     caricaPrenotazioni() {
       console.log("carico");
-      ipcRenderer.send('load-prenotazioni', {});
+      ipcRenderer.send("load-prenotazioni", {});
       // Rimuovi eventuali vecchi listener per evitare duplicati
-      ipcRenderer.removeAllListeners('risposta');
+      ipcRenderer.removeAllListeners("risposta");
       console.log("ONCE");
-      ipcRenderer.on('risposta', async (e, data) => {
+      ipcRenderer.on("risposta", async (e, data) => {
         console.log(data);
         await data;
         console.log("Risposta ricevuta.");
@@ -331,47 +480,62 @@ export default {
     },
 
     insertPrenotazione(prenotazione) {
-
-      prenotazione.oraInizio =prenotazione.data + " " + prenotazione.oraInizio
-      prenotazione.oraFine = prenotazione.data + " " + prenotazione.oraFine
-
       console.log(prenotazione);
-      ipcRenderer.send('save-prenotazione', { prenotazione });
+      ipcRenderer.send("save-prenotazione", { prenotazione });
       // Rimuovi eventuali vecchi listener per evitare duplicati
-      ipcRenderer.removeAllListeners('risposta');
-      ipcRenderer.on('risposta', async (e, data) => {
+      ipcRenderer.removeAllListeners("risposta");
+      ipcRenderer.on("risposta", async (e, data) => {
         console.log(data);
-
         console.log("Risposta ricevuta.");
+        this.dialog = false;
+        this.resetModelPrenotazione();
+        this.caricaPrenotazioni();
       });
     },
-    insertUser() {
-      ipcRenderer.send('save-user', { name: "TEST DA NOME " + Math.random() });
-      // Rimuovi eventuali vecchi listener per evitare duplicati
-      ipcRenderer.removeAllListeners('risposta');
-      ipcRenderer.on('risposta', async (e, data) => {
-        console.log(data);
 
-        console.log("Risposta ricevuta.");
-      });
+    mapValuesToText(values) {
+      return values
+        .map((value) => {
+          const item = this.items.find((item) => item.value === value);
+          return item ? item.text : "Unknown";
+        })
+        .join("#");
     },
+
     viewDay({ date }) {
-      this.focus = date
-      this.type = 'day'
+      this.focus = date;
+      this.type = "day";
     },
     getEventColor(event) {
-      return event.color
+      return event.color;
+    },
+    resetModelPrenotazione() {
+      (this.prenotazione = {
+        cliente: "",
+        tipologia: "",
+        data: "",
+        oraInizio: "",
+        oraFine: "",
+        name: "test",
+        cellulare: "",
+        lunghezzaCapelli: "",
+      }),
+        (this.time = null),
+        (this.date = null),
+        (this.menuDate = false),
+        (this.menuTime = false),
+        (this.tipologia = []);
     },
 
     setToday() {
-      this.type = 'day'
-      this.focus = ''
+      this.type = "day";
+      this.focus = "";
     },
     prev() {
-      this.$refs.calendar.prev()
+      this.$refs.calendar.prev();
     },
     next() {
-      this.$refs.calendar.next()
+      this.$refs.calendar.next();
     },
     getFirstInterval() {
       const startHour = 7; // Ora di inizio (8:00)
@@ -387,317 +551,231 @@ export default {
     },
     showEvent({ nativeEvent, event }) {
       const open = () => {
-        this.selectedEvent = event
-        this.selectedElement = nativeEvent.target
-        requestAnimationFrame(() => requestAnimationFrame(() => this.selectedOpen = true))
-      }
+        this.selectedEvent = event;
+        this.selectedElement = nativeEvent.target;
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => (this.selectedOpen = true))
+        );
+      };
 
       if (this.selectedOpen) {
-        this.selectedOpen = false
-        requestAnimationFrame(() => requestAnimationFrame(() => open()))
+        this.selectedOpen = false;
+        requestAnimationFrame(() => requestAnimationFrame(() => open()));
       } else {
-        open()
+        open();
       }
 
-      nativeEvent.stopPropagation()
+      nativeEvent.stopPropagation();
     },
     addEvent(prenotazione) {
-
       console.log(prenotazione);
     },
 
-    getAvailableSlotsForCurrentMonth() {
-      const availableSlots = [];
-      const currentDate = new Date(); // Data corrente
-      const currentMonth = currentDate.getMonth(); // Mese corrente
-      const currentYear = currentDate.getFullYear(); // Anno corrente
-      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate(); // Numero di giorni nel mese corrente
-
-      // Loop attraverso ogni giorno del mese
-      for (let day = 1; day <= daysInMonth; day++) {
-        const currentDate = new Date(currentYear, currentMonth, day);
-        const min = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 8); // Inizio giornata alle 08:00
-        const max = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 20, 30); // Fine giornata alle 20:30
-
-        // Loop attraverso ogni slot disponibile durante il giorno
-        let currentTime = new Date(min);
-        while (currentTime < max) {
-          if (
-            currentTime.getHours() >= 8 && currentTime.getHours() < 20 &&
-            !(currentTime.getHours() === 20 && currentTime.getMinutes() > 0)
-          ) {
-            availableSlots.push(new Date(currentTime)); // Aggiungi lo slot disponibile
-            currentTime = new Date(currentTime.getTime() + 30 * 60000); // Passa allo slot successivo (30 minuti dopo)
-          } else {
-            currentTime = new Date(currentTime.getTime() + 15 * 60000); // Passa allo slot successivo (15 minuti dopo)
-          }
-        }
-      }
-
-      return availableSlots;
-    },
-    getEventsForCurrentMonth() {
+    getEvents() {
       const events = [];
-      const currentDate = new Date(); // Data corrente
-      const currentMonth = currentDate.getMonth(); // Mese corrente
-      const currentYear = currentDate.getFullYear(); // Anno corrente
-      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate(); // Numero di giorni nel mese corrente
-
-      // Loop attraverso ogni giorno del mese
-      for (let day = 1; day <= daysInMonth; day++) {
-        const currentDate = new Date(currentYear, currentMonth, day);
-        var min = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 8); // Inizio giornata alle 08:00
-        var max = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 20, 30); // Fine giornata alle 20:30
-
-        // Loop attraverso ogni slot disponibile durante il giorno
-        while (min < max) {
-          if (
-            min.getHours() >= 8 && min.getHours() < 20 &&
-            !(min.getHours() === 20 && min.getMinutes() > 0)
-          ) {
-            events.push({
-              name: "Evento",
-              start: new Date(min),
-              end: new Date(min.getTime() + 15 * 60000), // Durata di 15 minuti
-              timed: true,
-            });
-            min = new Date(min.getTime() + 30 * 60000); // Passa allo slot successivo (30 minuti dopo)
-          } else {
-            min = new Date(min.getTime() + 15 * 60000); // Passa allo slot successivo (15 minuti dopo)
-          }
-        }
-      }
-
-      this.events = events;
-    },
-
-    getEvents({ start, end }) {
-      const events = [];
-      console.log(start);
-      console.log(end);
-      /* const min = new Date(`${start.date}T08:00:00`);
-       const max = new Date(`${end.date}T20:30:00`);
-       const days = (max.getTime() - min.getTime()) / 86400000;
-       const eventCount = this.rnd(days, days + 100);
- 
-       const takenSlots = new Set();
- 
-       for (let i = 0; i < eventCount; i++) {
-         let first, second;
-         let attempts = 0;
-         let slotTaken = true;
- 
-         while (slotTaken && attempts < 100) {
-           const dayOffset = this.rnd(0, days) * 86400000;
-           const timeOffset = this.rnd(0, (12.5 * 60 * 60 * 1000) / 900000) * 900000; // Intervalli tra 08:00 e 20:30
-           first = new Date(min.getTime() + dayOffset + timeOffset);
- 
-           // Verifica che il primo timestamp sia tra le 08:00 e le 20:30
-           if (first.getHours() < 8 || (first.getHours() >= 20 && first.getMinutes() > 0)) {
-             continue;
-           }
- 
-           const duration = this.rnd(1, 2) * 900000; // Durata di 15 minuti o 30 minuti
-           second = new Date(first.getTime() + duration);
- 
-           // Controlla se lo slot è già occupato
-           slotTaken = false;
-           for (let j = first.getTime(); j < second.getTime(); j += 900000) {
-             if (takenSlots.has(j)) {
-               slotTaken = true;
-               break;
-             }
-           }
-           attempts++;
-         }
- 
-         if (!slotTaken) {
-           for (let j = first.getTime(); j < second.getTime(); j += 900000) {
-             takenSlots.add(j);
-           }
-           
-         }
-       }*/
-      ipcRenderer.send('load-prenotazioni', {});
+      ipcRenderer.send("load-prenotazioni", {});
       // Rimuovi eventuali vecchi listener per evitare duplicati
-      ipcRenderer.removeAllListeners('risposta');
-      console.log("ONCE");
-      ipcRenderer.once('risposta', async (e, data) => {
+      ipcRenderer.removeAllListeners("risposta");
+      ipcRenderer.once("risposta", async (e, data) => {
         console.log("data", data);
-        let rows = await data
-
-        rows.forEach(element => {
+        let rows = await data;
+        rows.forEach((element) => {
           console.log(element);
           events.push({
             name: element.cliente,
             datail: element,
-            start: element.oraInizio,
-            end: element.oraFine,
+            start: element.data + " " + element.oraInizio,
+            end: element.data + " " + element.oraFine,
             color: this.colors[this.rnd(0, this.colors.length - 1)],
             timed: true,
           });
         });
         console.log("Risposta ricevuta.");
-
-
       });
-      events.push({
-        name: "test",
-        start: "2024-05-22 10:50",
-        end: "2024-05-22 11:20",
-        color: this.colors[this.rnd(0, this.colors.length - 1)],
-        timed: true,
-      });
-
-
-
       this.events = events;
     },
 
     addTimeToTimeString(timeString, hoursToAdd, minutesToAdd) {
-      let [hours, minutes] = timeString.split(':').map(Number);
+      let [hours, minutes] = timeString.split(":").map(Number);
       hours += hoursToAdd;
       minutes += minutesToAdd;
       hours += Math.floor(minutes / 60);
       minutes = minutes % 60;
       hours = hours % 24;
-      const paddedHours = String(hours).padStart(2, '0');
-      const paddedMinutes = String(minutes).padStart(2, '0');
+      const paddedHours = String(hours).padStart(2, "0");
+      const paddedMinutes = String(minutes).padStart(2, "0");
       return `${paddedHours}:${paddedMinutes}`;
     },
 
     rnd(a, b) {
-      return Math.floor((b - a + 1) * Math.random()) + a
+      return Math.floor((b - a + 1) * Math.random()) + a;
     },
 
     intervalFormat(time) {
       //formatazione del html della data
-      return time.time
+      return time.time;
     },
 
-
-    getAvailableSlotsForOperation(operationTimeInMinutes) {
-      // Calcoliamo il numero di slot richiesti per l'operazione
-      const requiredSlots = Math.ceil(operationTimeInMinutes / 15);
-
-      // Otteniamo gli slot disponibili per la data corrente
+    getAvailableSlots() {
+      this.availableSlots = this.calculateAvailableSlots(this.selectedSlotDuration);
+    },
+    calculateAvailableSlots(slotDuration) {
+      const availableSlots = [];
       const currentDate = new Date();
-      const currentDay = currentDate.getDate();
       const currentMonth = currentDate.getMonth();
       const currentYear = currentDate.getFullYear();
-      const availableSlotsForCurrentDay = this.getAvailableSlotsForDate(currentYear, currentMonth, currentDay);
-      console.log("requiredSlots", requiredSlots);
-      // Se ci sono slot disponibili per la data corrente, li restituiamo
-      if (availableSlotsForCurrentDay.length >= requiredSlots) {
-        return availableSlotsForCurrentDay.slice(0, requiredSlots);
-      }
+      const currentDay = currentDate.getDate();
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
-      // Altrimenti, cerchiamo gli slot disponibili per le date future
-      const availableSlotsForFutureDates = [];
+      const isSlotAvailable = (slotStart, slotEnd) => {
+        const slotStartDate = new Date(slotStart);
+        const slotEndDate = new Date(slotEnd);
 
-      let searchDate = new Date(currentYear, currentMonth, currentDay + 1); // Inizia dalla data successiva
-      console.log("availableSlotsForFutureDates", availableSlotsForFutureDates);
-      while (availableSlotsForFutureDates.length < requiredSlots) {
-        const year = searchDate.getFullYear();
-        const month = searchDate.getMonth();
-        const day = searchDate.getDate();
+        return !this.events.some((event) => {
+          const eventStartDate = new Date(event.start);
+          const eventEndDate = new Date(event.end);
 
-        const slotsForDate = this.getAvailableSlotsForDate(year, month, day);
-        availableSlotsForFutureDates.push(...slotsForDate);
+          // Verifica se lo slot si sovrappone con un evento
+          return slotStartDate < eventEndDate && slotEndDate > eventStartDate;
+        });
+      };
 
-        // Passa alla data successiva
-        searchDate.setDate(searchDate.getDate() + 1);
-      }
-      console.log(requiredSlots);
-      return availableSlotsForFutureDates.slice(0, requiredSlots);
-    },
+      for (let day = currentDay; day <= daysInMonth; day++) {
+        const currentDate = new Date(currentYear, currentMonth, day);
+        const dayOfWeek = currentDate.getDay();
 
-    getAvailableSlotsForDate(year, month, day) {
-      const availableSlots = [];
-      const min = new Date(year, month, day, 8); // Inizio giornata alle 08:00
-      const max = new Date(year, month, day, 20, 30); // Fine giornata alle 20:30
+        if (!this.selectedWeekDays.includes(dayOfWeek)) {
+          continue;
+        }
 
-      // Ottieni gli eventi già presenti per la data specificata
-      const eventsForDate = this.events.filter(event => {
-        const eventDate = new Date(event.start);
-        return eventDate.getFullYear() === year && eventDate.getMonth() === month && eventDate.getDate() === day;
-      });
+        const min = new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth(),
+          currentDate.getDate(),
+          8
+        );
+        const max = new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth(),
+          currentDate.getDate(),
+          20,
+          30
+        );
+        let currentTime = new Date(min);
 
-      // Loop attraverso ogni slot disponibile durante il giorno
-      let currentTime = new Date(min);
-      while (currentTime < max) {
-        if (
-          currentTime.getHours() >= 8 && currentTime.getHours() < 20 &&
-          !(currentTime.getHours() === 20 && currentTime.getMinutes() > 0)
-        ) {
-          // Verifica se lo slot è disponibile
-          const slotAvailable = !eventsForDate.some(event => {
-            return currentTime >= event.start && currentTime < event.end;
-          });
-          if (slotAvailable) {
-            availableSlots.push(new Date(currentTime)); // Aggiungi lo slot disponibile
+        while (currentTime < max) {
+          const slotStart = this.formatDate(currentTime);
+          const slotEnd = this.formatDate(
+            new Date(currentTime.getTime() + slotDuration * 60000)
+          );
+
+          if (slotEnd <= this.formatDate(max) && isSlotAvailable(slotStart, slotEnd)) {
+            availableSlots.push({ start: slotStart, end: slotEnd });
           }
-          currentTime = new Date(currentTime.getTime() + 30 * 60000); // Passa allo slot successivo (30 minuti dopo)
-        } else {
-          currentTime = new Date(currentTime.getTime() + 15 * 60000); // Passa allo slot successivo (15 minuti dopo)
+          currentTime = new Date(currentTime.getTime() + slotDuration * 60000);
         }
       }
-      console.log("availableSlots ", availableSlots);
-      return availableSlots;
-    }
 
+      return availableSlots;
+    },
+
+    formatDate(date) {
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const day = date.getDate().toString().padStart(2, "0");
+      const hours = date.getHours().toString().padStart(2, "0");
+      const minutes = date.getMinutes().toString().padStart(2, "0");
+      return `${year}-${month}-${day} ${hours}:${minutes}`;
+    },
   },
   watch: {
-    'prenotazione.data': function (params) {
-      console.log(params);
-    },
-    'date': function (params) {
-      console.log(params);
-      this.prenotazione.data = params;
-    },
-    'time': function (params) {
-      console.log(params);
-      this.prenotazione.oraInizio = params;
-      console.log("0", this.tipologia.includes(0));
-      if (this.tipologia.includes(0)) {
-        this.prenotazione.oraFine = this.addTimeToTimeString(params, 0, 20);
-        this.dataBestOccurence = this.getAvailableSlotsForOperation(20);
+    type: function (params) {
+      switch (params) {
+        case "day":
+          this.isDay = true;
+          this.isWeek = false;
+          this.isMouth = false;
+          break;
+        case "week":
+          this.isWeek = true;
+          this.isDay = false;
+          this.isMouth = false;
+          break;
+        case "month":
+          this.isMouth = true;
+          this.isWeek = false;
+          this.isDay = false;
+          break;
+        default:
+          this.isDay = true;
+          this.isWeek = false;
+          this.isMouth = false;
+          break;
       }
-
-      console.log("1", this.tipologia.includes(1));
-
-      console.log(
-        this.lunghezzaCapelli
-      );
-      if (this.tipologia.includes(1) || this.tipologia.includes(2)) {
-        if (this.lunghezzaCapelli == 0) {
+    },
+    "prenotazione.data": function (params) {
+      if (params) {
+        console.log(params);
+      }
+    },
+    date: function (params) {
+      if (params) {
+        console.log(params);
+        this.prenotazione.data = params;
+      }
+    },
+    time: function (params) {
+      if (params) {
+        console.log(params);
+        this.prenotazione.oraInizio = params;
+        console.log("0", this.tipologia.includes(0));
+        if (this.tipologia.includes(0)) {
           this.prenotazione.oraFine = this.addTimeToTimeString(params, 0, 20);
-          this.dataBestOccurence = this.getAvailableSlotsForOperation(30);
+          this.dataBestOccurence = this.getAvailableSlotsForOperation(20);
         }
-        else if (this.lunghezzaCapelli == 1) {
-          this.prenotazione.oraFine = this.addTimeToTimeString(params, 0, 30);
-          this.dataBestOccurence = this.getAvailableSlotsForOperation(40);
-
+        console.log("1", this.tipologia.includes(1));
+        console.log(this.lunghezzaCapelli);
+        if (this.tipologia.includes(1) || this.tipologia.includes(2)) {
+          if (this.lunghezzaCapelli === "Corti") {
+            this.prenotazione.oraFine = this.addTimeToTimeString(params, 0, 20);
+            this.dataBestOccurence = this.getAvailableSlotsForOperation(30);
+          } else if (this.lunghezzaCapelli === "Lunghi") {
+            this.prenotazione.oraFine = this.addTimeToTimeString(params, 0, 30);
+            this.dataBestOccurence = this.getAvailableSlotsForOperation(40);
+          }
         }
-      }
 
-      console.log("2", this.tipologia.includes(2));
-      if (this.tipologia.includes(0) && this.tipologia.includes(1) && this.tipologia.includes(2)) {
-        this.prenotazione.oraFine = this.addTimeToTimeString(params, 1, 0);
-        this.dataBestOccurence = this.getAvailableSlotsForOperation(60);
+        console.log("2", this.tipologia.includes(2));
+        if (
+          this.tipologia.includes(0) &&
+          this.tipologia.includes(1) &&
+          this.tipologia.includes(2)
+        ) {
+          this.prenotazione.oraFine = this.addTimeToTimeString(params, 1, 0);
+          this.dataBestOccurence = this.getAvailableSlotsForOperation(60);
+        }
       }
     },
     tipologia: function (newVal) {
-      console.log("tipologia", newVal);
-      // Map array of integers to corresponding text values using the items array
-      this.prenotazione.tipologia = this.mapValuesToText(newVal);
-      console.log("Mapped tipologia:", this.prenotazione.tipologia);
-    }
-  }
-}
+      if (newVal) {
+        console.log("tipologia", newVal);
+        // Map array of integers to corresponding text values using the items array
+        this.prenotazione.tipologia = this.mapValuesToText(newVal);
+        console.log("Mapped tipologia:", this.prenotazione.tipologia);
+        if (!newVal.includes(1)) {
+          this.prenotazione.lunghezzaCapelli = "";
+        }
+      }
+    },
+  },
+};
 </script>
 
 <style>
+.text-center {
+  text-align: center;
+}
+
 body {
   overflow: hidden !important;
   /* Rimuove lo scroll sia orizzontale che verticale */
