@@ -4,7 +4,7 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 const isDevelopment = process.env.NODE_ENV !== 'production';
 import path from 'path';
-import {db,connectDatabase,SelectPrenotazione,insertPrenotazione, selectUsers,insertUser, closeDatabase ,deletePrenotazione} from './dbmanager';
+import {db,SelectPrenotazioni,insertPrenotazione,selectClienti,insertCliente, closeDatabase ,deletePrenotazione} from './dbmanager';
 // Creazione della finestra principale
 let mainWindow = null;
 
@@ -85,28 +85,28 @@ if (isDevelopment) {
   }
 }
 
-ipcMain.on('fetch-users',async (event,data) => {
-  console.log(event);
-  console.log(data);
-  let users = await selectUsers();
-  await mainWindow.webContents.send('risposta',users);
-});
+
 
 ipcMain.on('load-prenotazioni',async (event,data) => {
   console.log(event);
   console.log(data);
-  let pernotazioni = await SelectPrenotazione();
+  let pernotazioni = await SelectPrenotazioni();
   await mainWindow.webContents.send('risposta',pernotazioni);
 });
-
-ipcMain.on('save-user',async (event,data) => {
+ipcMain.on('load-clienti',async (event,data) => {
   console.log(event);
   console.log(data);
-  const name = data.name;
-  insertUser(name);
+  let clienti = await selectClienti();
+  await mainWindow.webContents.send('risposta',clienti);
+});
+ipcMain.on('save-cliente',async (event,data) => {
+  console.log(event);
+  console.log(data);
+  const cliente = data.cliente;
+  insertCliente(cliente)
   let risposta = {
-    esito :"boh",
-    test:name,
+    esito :true,
+    test:cliente,
     data:data,
   }
   await mainWindow.webContents.send('risposta',risposta);
@@ -138,7 +138,7 @@ ipcMain.on('delete-prenotazione',async (event,data) => {
   await mainWindow.webContents.send('risposta',risposta);
 });
 
-ipcMain.on('reload',async(event,data)=>{
+ipcMain.on('reload',async(e,data)=>{
   console.log(data);
   mainWindow.webContents.reloadIgnoringCache();
 })

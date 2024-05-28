@@ -17,10 +17,10 @@ const createDatabaseIfNotExists = async () => {
         }
       });
       db.serialize(() => {
-       /* db.run(`CREATE TABLE IF NOT EXISTS user (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT
-        )`);*/
+        /* db.run(`CREATE TABLE IF NOT EXISTS user (
+           id INTEGER PRIMARY KEY AUTOINCREMENT,
+           name TEXT
+         )`);*/
         db.run(`CREATE TABLE IF NOT EXISTS prenotazioni (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT,
@@ -30,10 +30,10 @@ const createDatabaseIfNotExists = async () => {
           dataOraFine TEXT,
           cellulare TEXT,
           recurringGruppId INTEGER,
-           BOOLEAN,
-          frequenza TEXT
+          recurring BOOLEAN,
+          frequenza INTEGER
         )`);
-        db.run(`CREATE TABLE IF NOT EXISTS cliente (
+        db.run(`CREATE TABLE IF NOT EXISTS clienti (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           nome TEXT
         )`);
@@ -75,21 +75,21 @@ const connectDatabase = async () => {
   }
 };
 
-const selectUsers = async () => {
+const selectClienti = async () => {
   let db;
   try {
     db = await connectDatabase();
     const rows = await new Promise((resolve, reject) => {
-      db.all('SELECT * FROM user', (err, rows) => {
+      db.all('SELECT * FROM clienti', (err, rows) => {
         if (err) {
           console.error('Errore durante l\'esecuzione della query:', err);
-          reject(err); 
+          reject(err);
         } else {
-          console.log('Risultati della SELECT:');
+          console.log('Risultati della SELECT: ');
           rows.forEach((row) => {
-            console.log(row); 
+            console.log(row);
           });
-          resolve(rows); 
+          resolve(rows);
         }
       });
     });
@@ -98,12 +98,43 @@ const selectUsers = async () => {
   } catch (error) {
     console.error('Errore durante l\'esecuzione della query:', error);
     if (db) {
-      db.close(); 
+      db.close();
     }
     throw error;
   }
 };
-const SelectPrenotazione = async () => {
+const insertCliente = async (cliente) => {
+  let db;
+  try {
+    db = await connectDatabase();
+    await new Promise((resolve, reject) => {
+      db.run(`INSERT INTO clienti (name) 
+      VALUES (?)`,
+        [cliente.name],
+        function (err) {
+          if (err) {
+            console.error('Errore durante l\'inserimento del CLIENTE:', err.message);
+            reject(err);
+          } else {
+            console.log(`Nuovo cliente inserito con ID: ${this.lastID}`);
+            resolve(this.lastID);
+          }
+        });
+    });
+    db.close();
+  } catch (error) {
+    console.error('Errore durante l\'inserimento della prenotazione:', error);
+    if (db) {
+      db.close();
+    }
+    throw error;
+  }
+
+};
+
+
+
+const SelectPrenotazioni = async () => {
   let db;
   try {
     db = await connectDatabase();
@@ -111,14 +142,14 @@ const SelectPrenotazione = async () => {
       db.all('SELECT * FROM prenotazioni', (err, rows) => {
         if (err) {
           console.error('Errore durante l\'esecuzione della query:', err);
-          reject(err); 
+          reject(err);
         } else {
           console.log('Risultati della SELECT:');
           rows.forEach((row) => {
-            console.log("result db",row); 
+            console.log("result db", row);
           });
-          
-          resolve(rows); 
+
+          resolve(rows);
         }
       });
     });
@@ -127,35 +158,38 @@ const SelectPrenotazione = async () => {
   } catch (error) {
     console.error('Errore durante l\'esecuzione della query:', error);
     if (db) {
-      db.close(); 
+      db.close();
     }
     throw error;
   }
 };
+
+
+
 const insertPrenotazione = async (prenotazione) => {
   let db;
   try {
     db = await connectDatabase();
     await new Promise((resolve, reject) => {
-      db.run(`INSERT INTO prenotazioni (name, cliente, tipologia, dataOraInizio, dataOraFine, cellulare, ) 
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, 
-             [prenotazione.name, prenotazione.cliente, prenotazione.tipologia,
-              prenotazione.dataOraInizio, prenotazione.dataOraFine, prenotazione.cellulare, prenotazione.lunghezzaCapelli, ], 
-             function(err) {
-        if (err) {
-          console.error('Errore durante l\'inserimento della prenotazione:', err.message);
-          reject(err); 
-        } else {
-          console.log(`Nuova prenotazione inserita con ID: ${this.lastID}`);
-          resolve(this.lastID); 
-        }
-      });
+      db.run(`INSERT INTO prenotazioni (name, cliente, tipologia, dataOraInizio, dataOraFine, cellulare, recurringGruppId, recurring, frequenzaRicorrenza) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [prenotazione.name, prenotazione.cliente, prenotazione.tipologia, app.dataOraInizio,
+        app.dataOraFine, prenotazione.cellulare, prenotazione.recurringGruppId, prenotazione.recurring, prenotazione.frequenzaRicorrenza],
+        function (err) {
+          if (err) {
+            console.error('Errore durante l\'inserimento della prenotazione:', err.message);
+            reject(err);
+          } else {
+            console.log(`Nuova prenotazione inserita con ID: ${this.lastID}`);
+            resolve(this.lastID);
+          }
+        });
     });
     db.close();
   } catch (error) {
     console.error('Errore durante l\'inserimento della prenotazione:', error);
     if (db) {
-      db.close(); 
+      db.close();
     }
     throw error;
   }
@@ -165,10 +199,10 @@ const deletePrenotazione = async (id) => {
   try {
     db = await connectDatabase();
     await new Promise((resolve, reject) => {
-      db.run(`DELETE FROM prenotazioni WHERE id = ?`, [id], function(err) {
+      db.run(`DELETE FROM prenotazioni WHERE id = ?`, [id], function (err) {
         if (err) {
           console.error('Errore durante l\'eliminazione della prenotazione :', err.message);
-          reject(err); 
+          reject(err);
         } else {
           console.log(`Prenotazione eliminata con ID: ${id}`);
           resolve();
@@ -179,7 +213,7 @@ const deletePrenotazione = async (id) => {
   } catch (error) {
     console.error('Errore durante l\'eliminazione dell\'utente:', error);
     if (db) {
-      db.close(); 
+      db.close();
     }
     throw error;
   }
@@ -192,25 +226,28 @@ const closeDatabase = async () => {
       db.close((err) => {
         if (err) {
           console.error('Errore durante la chiusura del database:', err);
-          reject(err); 
+          reject(err);
         } else {
           console.log('Database chiuso correttamente');
-          resolve(); 
+          resolve();
         }
       });
-      });
-      } catch (error) {
-      console.error('Errore durante la chiusura del database:', error);
-      if (db) {
-      db.close(); 
-      }
-      throw error;
-      }
-      };
-      
-      module.exports = { 
-        connectDatabase, 
-        selectUsers, 
-        SelectPrenotazione,
-        insertPrenotazione,
-        insertUser, deleteUser,deletePrenotazione, closeDatabase };
+    });
+  } catch (error) {
+    console.error('Errore durante la chiusura del database:', error);
+    if (db) {
+      db.close();
+    }
+    throw error;
+  }
+};
+
+module.exports = {
+  connectDatabase,
+  selectClienti,
+  insertCliente,
+  SelectPrenotazioni,
+  insertPrenotazione,
+  deletePrenotazione,
+  closeDatabase
+};

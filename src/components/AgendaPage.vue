@@ -4,7 +4,7 @@
       <v-row class="fill-height">
         <v-col>
           <v-sheet height="100">
-            <v-btn text small color="primary" @click="caricaPrenotazioni()">
+            <v-btn text small color="primary" @click="getEvents()">
               <v-icon small> mdi-calendar </v-icon>
               Carica Prenotazioni
             </v-btn>
@@ -68,7 +68,7 @@
               :start-interval="startInterval"
               :first-interval="getFirstInterval()"
               :interval-count="getIntervalCount()"
-              :interval-height="40"
+              :interval-height="50"
               :interval-format="intervalFormat"
             >
               <template v-slot:event="{ event }">
@@ -159,8 +159,9 @@
                 <v-autocomplete
                   label="Cliente"
                   prepend-icon="mdi-account"
+                  append-icon="mdi-scissors"
                   v-model="prenotazione.cliente"
-                  :items="persone"
+                  :items="clienti"
                 ></v-autocomplete>
               </v-col>
               <v-col v-else cols="11">
@@ -311,7 +312,7 @@ export default {
     
     manual: false, 
     dataBestOccurence: [],
-    dialog: false,
+    dialog: true,
     menuDate: false,
     menuTime: false,
     intervalloMinuti: 15,
@@ -355,22 +356,7 @@ export default {
       oraFine: "09:00",
       name: "test",
       cellulare: "3922827514",
-      lunghezzaCapelli: "Lunghi",
     },
-    data: "2024-05-25",
-    time: "07:30",
-    users: [],
-    lunghezzaCapelli: [],
-    persone: [
-      "Francesco Tammaro",
-      "Francesco mmaro",
-      "Francesco Tamaro",
-      "Francescomaro",
-      "Fncesco Tammo",
-      "Fancesco Tammro",
-    ],
-    autocomplete: true,
-    itemslunghezza: ["Corti", "Lunghi"],
     items: [
       {
         value: 0,
@@ -381,9 +367,11 @@ export default {
         text: "Capelli",
       },
     ],
-    selectedSlotDuration: 30,
+    data: "2024-05-25",
+    time: "07:30",
+    clienti: [],
+    autocomplete: true,
     selectedWeekDays: [],
-    slotDurations: [30, 60],
     availableSlots: [],
     weekDays: [
       { text: "Martedì", value: 2 },
@@ -424,37 +412,29 @@ export default {
         console.log(data);
       });
     },
-
-    async onDeletePrenotazione(prenotazione) {
-      console.log("delete", prenotazione);
-      let id = prenotazione.datail.id;
-      ipcRenderer.send("delete-prenotazione", { id: id });
-      // Rimuovi eventuali vecchi listener per evitare duplicati
-      ipcRenderer.removeAllListeners("risposta");
-      ipcRenderer.on("risposta", async (e, data) => {
-        console.log(data);
-      });
-      await this.getEvents();
-      this.$nextTick(async () => {
-        await this.reload();
-        console.log("Aggiornamento completato!");
-      });
-    },
-
-    async caricaPrenotazioni() {
-      console.log("carico");
+    async getEvents() {
+      const events = [];
       ipcRenderer.send("load-prenotazioni", {});
       // Rimuovi eventuali vecchi listener per evitare duplicati
       ipcRenderer.removeAllListeners("risposta");
-      console.log("ONCE");
-      ipcRenderer.on("risposta", async (e, data) => {
-        console.log(data);
-        await data;
+      ipcRenderer.once("risposta", async (e, data) => {
+        let rows = await data;
+        if (rows.length > 0)
+          rows.forEach((element) => {
+            console.log(element);
+            events.push({
+              name: element.cliente,
+              datail: element,
+              start: element.dataOraInizio,
+              end:element.dataOraFine,
+              color: this.colors[this.rnd(0, this.colors.length - 1)],
+              timed: true,
+            });
+          });
         console.log("Risposta ricevuta.");
       });
-      await this.reload();
+      this.events = events;
     },
-
     async insertPrenotazione(prenotazione) {
       console.log(prenotazione);
       ipcRenderer.send("save-prenotazione", { prenotazione });
@@ -467,11 +447,23 @@ export default {
       this.dialog = false;
       this.resetModelPrenotazione();
       await this.getEvents();
-      this.$nextTick(async () => {
-        await this.reload();
-        console.log("Aggiornamento completato!");
-      });
     },
+    async onDeletePrenotazione(prenotazione) {
+      console.log("delete", prenotazione);
+      let id = prenotazione.datail.id;
+      ipcRenderer.send("delete-prenotazione", { id: id });
+      // Rimuovi eventuali vecchi listener per evitare duplicati
+      ipcRenderer.removeAllListeners("risposta");
+      ipcRenderer.on("risposta", async (e, data) => {
+        console.log(data);
+      });
+      await this.getEvents();
+    },
+   
+
+  
+
+   
 
     mapValuesToText(values) {
       return values
@@ -498,6 +490,9 @@ export default {
         oraFine: "",
         name: "test",
         cellulare: "",
+        recurringGruppId:0,
+        recurring:false,
+        frequenza: 0 //  0 numero settimane prenotazione riservata ! 
       }),
         (this.time = null),
         (this.date = null),
@@ -554,29 +549,7 @@ export default {
       console.log(prenotazione);
     },
 
-    async getEvents() {
-      const events = [];
-      ipcRenderer.send("load-prenotazioni", {});
-      // Rimuovi eventuali vecchi listener per evitare duplicati
-      ipcRenderer.removeAllListeners("risposta");
-      ipcRenderer.once("risposta", async (e, data) => {
-        let rows = await data;
-        if (rows.length > 0)
-          rows.forEach((element) => {
-            console.log(element);
-            events.push({
-              name: element.cliente,
-              datail: element,
-              start: element.data + " " + element.oraInizio,
-              end: element.data + " " + element.oraFine,
-              color: this.colors[this.rnd(0, this.colors.length - 1)],
-              timed: true,
-            });
-          });
-        console.log("Risposta ricevuta.");
-      });
-      this.events = events;
-    },
+   
 
     rnd(a, b) {
       return Math.floor((b - a + 1) * Math.random()) + a;
@@ -587,7 +560,7 @@ export default {
     },
 
     getAvailableSlots() {
-      this.availableSlots = this.calculateAvailableSlots(this.selectedSlotDuration);
+      this.availableSlots = this.calculateAvailableSlots(30);
     },
     calculateAvailableSlots(slotDuration) {
       const availableSlots = [];
