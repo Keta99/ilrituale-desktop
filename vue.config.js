@@ -63,7 +63,7 @@ module.exports = defineConfig({
           ]
         },
         win: {
-          icon: "public/icon.ico",
+          icon: "assets/icon.ico",
           target: [
             {
               target: "nsis",

@@ -1,5 +1,6 @@
 <template>
   <v-container>
+    <v-sheet height="100">
     <v-row>
       <v-col>
         <v-calendar
@@ -38,6 +39,7 @@
         </v-list>
       </v-col>
     </v-row>
+  </v-sheet>
   </v-container>
 </template>
 

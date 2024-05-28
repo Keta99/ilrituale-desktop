@@ -137,3 +137,8 @@ ipcMain.on('delete-prenotazione',async (event,data) => {
   }
   await mainWindow.webContents.send('risposta',risposta);
 });
+
+ipcMain.on('reload',async(event,data)=>{
+  console.log(data);
+  mainWindow.webContents.reloadIgnoringCache();
+})
