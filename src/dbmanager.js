@@ -202,9 +202,9 @@ const insertPrenotazione = async (prenotazione) => {
   try {
     db = await connectDatabase();
     await new Promise((resolve, reject) => {
-      db.run(`INSERT INTO prenotazioni (name, cliente, tipologia, dataOraInizio, dataOraFine, cellulare, recurringGruppId, recurring, frequenzaRicorrenza) 
+      db.run(`INSERT INTO prenotazioni (note, cliente, tipologia, dataOraInizio, dataOraFine, cellulare, recurringGruppId, recurring, frequenzaRicorrenza) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [prenotazione.name, prenotazione.cliente, prenotazione.tipologia, app.dataOraInizio,
+        [prenotazione.note, prenotazione.cliente, prenotazione.tipologia, app.dataOraInizio,
         app.dataOraFine, prenotazione.cellulare, prenotazione.recurringGruppId, prenotazione.recurring, prenotazione.frequenzaRicorrenza],
         function (err) {
           if (err) {

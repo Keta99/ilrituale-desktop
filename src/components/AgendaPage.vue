@@ -408,13 +408,22 @@ export default {
 
     async insertPrenotazione(prenotazione) {
       console.log(prenotazione);
+      console.log(this.selectedSlots); 
+      let dataOraInizio = "";
+      let dataOraFine = "";
+      if(this.selectedSlots){
+          dataOraInizio = this.selectedSlots.start;
+         dataOraFine = this.selectedSlots.end;
+      }else{
+        dataOraInizio =  prenotazione.data + " " + prenotazione.oraInizio,
+        dataOraFine = prenotazione.data + " " + prenotazione.oraFine
+      }
       let prenotazioneSend = {
-        name: prenotazione.cliente,
         cliente: prenotazione.cliente,
-        dataOraInizio: prenotazione.data + " " + prenotazione.oraInizio,
-        dataOraFine: prenotazione.data + " " + prenotazione.oraFine,
+        dataOraInizio:dataOraInizio,
+        dataOraFine: dataOraFine,
         cellulare: prenotazione.cellulare,
-        note: prenotazione.note,
+        note:"e",
         recurringGruppId: 0,
         recurring: false,
         frequenza: 0
@@ -426,10 +435,10 @@ export default {
         console.log(data);
         console.log("Risposta ricevuta.");
       });
-      this.dialog = false;
+      /*this.dialog = false;
       this.resetModelPrenotazione();
       await this.getEvents();
-      this.reload();
+      this.reload();*/
     },
     async onDeletePrenotazione(prenotazione) {
       console.log("delete", prenotazione);
@@ -562,9 +571,6 @@ export default {
           return slotStartDate < eventEndDate && slotEndDate > eventStartDate;
         });
       };
-
-
-
       let mounthCalcolo = currentMonth;
       let dayCalcolo = currentDay;
       let yearCalcolor = currentYear;
