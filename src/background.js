@@ -4,7 +4,7 @@ import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer';
 const isDevelopment = process.env.NODE_ENV !== 'production';
 import path from 'path';
-import {db,SelectPrenotazioni,insertPrenotazione,selectClienti,insertCliente, closeDatabase ,deletePrenotazione} from './dbmanager';
+import {db,SelectPrenotazioni, selectClientiByNome, insertPrenotazione,selectClienti,insertCliente, closeDatabase ,deletePrenotazione} from './dbmanager';
 // Creazione della finestra principale
 let mainWindow = null;
 
@@ -87,9 +87,8 @@ if (isDevelopment) {
 
 
 
-ipcMain.on('load-prenotazioni',async (event,data) => {
-  console.log(event);
-  console.log(data);
+ipcMain.on('load-prenotazioni',async () => {
+
   let pernotazioni = await SelectPrenotazioni();
   await mainWindow.webContents.send('risposta',pernotazioni);
 });
@@ -137,7 +136,14 @@ ipcMain.on('delete-prenotazione',async (event,data) => {
   }
   await mainWindow.webContents.send('risposta',risposta);
 });
-
+ipcMain.on('cliente',async (event,data) => {
+  const cliente = await selectClientiByNome(data);
+  let risposta = {
+    esito :true,
+    data:cliente,
+  }
+  await mainWindow.webContents.send('risposta',risposta);
+});
 ipcMain.on('reload',async(e,data)=>{
   console.log(data);
   mainWindow.webContents.reloadIgnoringCache();

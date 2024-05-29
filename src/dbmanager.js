@@ -25,7 +25,7 @@ const createDatabaseIfNotExists = async () => {
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           name TEXT,
           cliente TEXT,
-          tipologia TEXT,
+          note TEXT,
           dataOraInizio TEXT,
           dataOraFine TEXT,
           cellulare TEXT,
@@ -60,7 +60,6 @@ const connectDatabase = async () => {
       if (err) {
         throw new Error(`Errore durante l'apertura del database: ${err}`);
       } else {
-        console.log(db);
         console.log('Database aperto correttamente');
       }
     });
@@ -103,6 +102,38 @@ const selectClienti = async () => {
     throw error;
   }
 };
+
+const selectClientiByNome = async (nome) => {
+  let db;
+  try {
+    db = await connectDatabase();
+    const rows = await new Promise((resolve, reject) => {
+      db.all('SELECT * FROM clienti WHERE clienti.nome = ?',[nome],  (err, rows) => {
+        if (err) {
+          console.error('Errore durante l\'esecuzione della query:', err);
+          reject(err);
+        } else {
+          console.log(`Risultati della SELECT ${nome} `  );
+          rows.forEach((row) => {
+            console.log(row);
+            console.log("!row",!row);
+          });
+          resolve(rows);
+        }
+      });
+    });
+    db.close();
+    return rows;
+  } catch (error) {
+    console.error('Errore durante l\'esecuzione della query:', error);
+    if (db) {
+      db.close();
+    }
+    throw error;
+  }
+};
+
+
 const insertCliente = async (cliente) => {
   let db;
   try {
@@ -245,6 +276,7 @@ const closeDatabase = async () => {
 module.exports = {
   connectDatabase,
   selectClienti,
+  selectClientiByNome,
   insertCliente,
   SelectPrenotazioni,
   insertPrenotazione,

@@ -51,33 +51,13 @@
             </v-toolbar>
           </v-sheet>
           <v-sheet height="600">
-            <v-calendar
-              ref="calendar"
-              v-model="focus"
-              color="primary"
-              locale="it"
-              :events="events"
-              :event-color="getEventColor"
-              :type="type"
-              :weekdays="week"
-              @click:event="showEvent"
-              @click:more="viewDay"
-              @click:date="viewDay"
-              @change="getEvents"
-              :interval-minutes="intervalloMinuti"
-              :start-interval="startInterval"
-              :first-interval="getFirstInterval()"
-              :interval-count="getIntervalCount()"
-              :interval-height="50"
-              :interval-format="intervalFormat"
-            >
+            <v-calendar ref="calendar" v-model="focus" color="primary" locale="it" :events="events"
+              :start="dataInizioCalendario" :end="dataFineCalendario" :event-color="getEventColor" :type="type"
+              :weekdays="week" @click:event="showEvent" @click:more="viewDay" @click:date="viewDay" @change="getEvents"
+              :interval-minutes="intervalloMinuti" :first-interval="getFirstInterval()"
+              :interval-count="getIntervalCount()" :interval-height="50" :interval-format="intervalFormat">
               <template v-slot:event="{ event }">
-                <v-menu
-                  v-model="selectedOpen"
-                  :close-on-content-click="false"
-                  :activator="selectedElement"
-                  offset-x
-                >
+                <v-menu v-model="selectedOpen" :close-on-content-click="false" :activator="selectedElement" offset-x>
                   <v-card color="grey lighten-4" min-width="350px" flat>
                     <v-toolbar :color="selectedEvent.color" dark>
                       <v-toolbar-title v-html="selectedEvent.name"></v-toolbar-title>
@@ -87,9 +67,8 @@
                       </v-btn>
                     </v-toolbar>
                     <v-card-text>
-                      <span >{{selectedEvent}}</span>
-
-                      <span>ORARIO ?  </span>
+                      <span>{{ selectedEvent }}</span>
+                      <span>ORARIO ? </span>
                     </v-card-text>
                     <v-card-actions>
                       <v-btn text color="secondary" @click="selectedOpen = false">
@@ -101,7 +80,6 @@
                 <div class="custom-event">
                   <v-row class="justify-center" v-if="isDay">
                     <v-col cols="3" class="text-center">
-                      isDay
                       <strong style="font-size: 15px">{{ event.name }}</strong>
                       <tr></tr>
                       <strong style="font-size: 15px">{{
@@ -110,26 +88,25 @@
                     </v-col>
                     <v-col cols="3" class="text-center">
                       <strong style="font-size: 20px">
-                        {{ event.datail.oraInizio }} - {{ event.datail.oraFine }}</strong
-                      >
+                        {{ event.datail.oraInizio }} - {{ event.datail.oraFine }}</strong>
                     </v-col>
                     <v-col cols="3" class="text-center">
-                      <strong> {{ event.datail.tipologia }}</strong>
+                      <strong> {{ event.datail.note }}</strong>
                     </v-col>
                   </v-row>
                   <v-row class="pa-1" v-if="isWeek">
                     <v-col cols="12" class="text-start">
-                      <h1 style="font-size: large;" class="text-center" >
+                      <h1 style="font-size: large;" class="text-center">
                         {{ event.name }}
-                      </h1> 
+                      </h1>
                       <hr>
                       <h6 style="margin: 5px;">
-                       <v-row>
-                        <v-col cols="2">
-                            
-                        </v-col>
-                       </v-row>
-                      </h6> 
+                        <v-row>
+                          <v-col cols="2">
+
+                          </v-col>
+                        </v-row>
+                      </h6>
                     </v-col>
                   </v-row>
                   <v-row class="justify-start" v-if="isMouth">
@@ -151,126 +128,79 @@
         <v-card-title class="justify-center">
           <h2>Prenotazione</h2>
         </v-card-title>
-        <hr/>
+        <hr class="mr-4 ml-4" />
         <v-card-text class="pa-3">
           <v-card-text>
-            <v-row>
+            <v-row class="pa-1">
               <v-col v-if="autocomplete" cols="11">
-                <v-autocomplete
-                  label="Cliente"
-                  prepend-icon="mdi-account"
-                  append-icon="mdi-scissors"
-                  v-model="prenotazione.cliente"
-                  :items="clienti"
-                ></v-autocomplete>
+                <v-autocomplete label="Cliente" prepend-icon="mdi-account" append-icon="fa-scissors"
+                  v-model="prenotazione.cliente" :items="clienti"></v-autocomplete>
               </v-col>
               <v-col v-else cols="11">
-                <v-text-field
-                  label="Cliente"
-                  prepend-icon="mdi-account"
-                  v-model="prenotazione.cliente"
-                ></v-text-field>
+                <v-text-field label="Cliente" prepend-icon="mdi-account" v-model="prenotazione.cliente"></v-text-field>
               </v-col>
               <v-col cols="1">
-                <v-checkbox v-model="autocomplete"></v-checkbox>
+                <v-switch v-model="autocomplete"></v-switch>
               </v-col>
               <v-col cols="11">
-                <v-text-field
-                  label="Cellulare"
-                  prepend-icon="mdi-phone"
-                  v-model="prenotazione.cellulare"
-                ></v-text-field>
+                <v-text-field label="Cellulare" prepend-icon="mdi-phone"
+                  v-model="prenotazione.cellulare"></v-text-field>
               </v-col>
-              <v-col cols="8">
-                <v-autocomplete
-                  v-model="tipologia"
-                  prepend-icon="mdi-alpha-t"
-                  :items="items"
-                  multiple
-                  class="ma-2"
-                  label="Tipo Prenotazione"
-                  dense
-                  hide-details
-                >
-                </v-autocomplete>
-              </v-col>
-              <v-col cols="3">
-      
-              </v-col>
-            </v-row>
-          </v-card-text>
-          <v-card-text justify="center">
-            <v-checkbox></v-checkbox>
-          </v-card-text>
-          <v-card-text >
-            <v-row>
-              <v-col>
-                <v-menu
-                  v-model="menuDate"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
+              <v-col cols="6">
+                <v-menu v-model="menuDate" :close-on-content-click="false" :nudge-right="40"
+                  transition="scale-transition" offset-y min-width="auto">
                   <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="date"
-                      label="Data Appuntamento"
-                      prepend-icon="mdi-calendar"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                    ></v-text-field>
+                    <v-text-field v-model="date" label="Data Appuntamento" prepend-icon="mdi-calendar" readonly
+                      v-bind="attrs" v-on="on"></v-text-field>
                   </template>
                   <v-date-picker v-model="date" @input="menuDate = false"></v-date-picker>
                 </v-menu>
-                {{ data }}
               </v-col>
-              <v-col>
-                <v-menu
-                  v-model="menuTime"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
+              <v-col cols="5">
+                <v-menu v-model="menuTime" :close-on-content-click="false" :nudge-right="40"
+                  transition="scale-transition" offset-y min-width="auto">
                   <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="time"
-                      label="Orario Appuntamento"
-                      prepend-icon="mdi-clock"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                    ></v-text-field>
+                    <v-text-field v-model="time" label="Orario Appuntamento" prepend-icon="mdi-clock" readonly
+                      v-bind="attrs" v-on="on"></v-text-field>
                   </template>
                   <v-time-picker format="24hr" @input="menuTime = false" v-model="time">
                   </v-time-picker>
                 </v-menu>
-                {{ time }}
+              </v-col>
+              <v-col cols="1">
+              </v-col>
+              <v-col cols="1">
+              </v-col>
+              <v-col cols="11" style="display: flex; justify-content: center">
+                <span style="font-size: 15px;">Frequenza in un Anno</span>
+              </v-col>
+              <v-col cols="1">
+              </v-col>
+              <v-col cols="3">
+                <v-switch v-model="prenotazione.recurring" color="red darken-3">
+                  <template v-slot:label>
+                    <span>Abituale</span>
+                  </template>
+                </v-switch>
+              </v-col>
+              <v-col cols="5" class="mt-4">
+                <v-slider :disabled="!prenotazione.recurring" hint="Settimane" thumb-label="always"
+                  v-model="prenotazione.frequenza" max="12" min="1"
+                  :persistent-hint="prenotazione.recurring"></v-slider>
+              </v-col>
+              <v-col cols="2">
+                <span>{{ pfText }}</span>
               </v-col>
             </v-row>
           </v-card-text>
           <v-card-text>
-            <div>
+            <div>CALCOLO MIGLIORE SLOT
               <v-row>
                 <v-col>
-                  <v-select
-                    :items="weekDays"
-                    label="Seleziona giorni della settimana"
-                    v-model="selectedWeekDays"
-                    multiple
-                    chips
-                  ></v-select>
+                  <v-select :items="weekDays" label="Seleziona giorni della settimana" v-model="selectedWeekDays"
+                    multiple chips></v-select>
                   <v-btn @click="getAvailableSlots">Mostra slot disponibili</v-btn>
-                  <v-select
-                    :items="formattedSlots"
-                    label="vedi slot"
-                    chips
-                    v-model="selectedSlots"
-                  ></v-select>
+                  <v-select :items="formattedSlots" label="vedi slot" chips v-model="selectedSlots"></v-select>
                   {{ selectedSlots }}
                   <v-list>
                     <v-list-item v-for="(slot, index) in selectedSlots" :key="index">
@@ -283,20 +213,11 @@
           </v-card-text>
         </v-card-text>
         <v-card-actions>
-          <v-btn
-            class="withoutupercase"
-            color="red"
-            style="color: white"
-            @click="resetModelPrenotazione"
-          >
+          <v-btn class="withoutupercase" color="red" style="color: white" @click="resetModelPrenotazione">
             Reset
           </v-btn>
           <v-spacer></v-spacer>
-          <v-btn
-            @click="insertPrenotazione(prenotazione)"
-            color="success"
-            class="withoutupercase"
-          >
+          <v-btn @click="insertPrenotazione(prenotazione)" color="success" class="withoutupercase">
             Salva
           </v-btn>
         </v-card-actions>
@@ -309,31 +230,18 @@
 import { ipcRenderer } from "electron";
 export default {
   data: () => ({
-    
-    manual: false, 
-    dataBestOccurence: [],
-    dialog: true,
-    menuDate: false,
-    menuTime: false,
-    intervalloMinuti: 15,
-    selectedSlots: [],
-    focus: "",
-    tipologia: [0, 1],
-    type: "week",
-    isDay: false,
-    isWeek: false,
-    isMouth: false,
-    typeToLabel: {
-      month: "Mese",
-      week: "Settimana",
-      day: "Giorno",
-    },
-    week: [2, 3, 4, 5, 6],
-    startInterval: 2,
-    selectedEvent: {},
-    selectedElement: null,
-    selectedOpen: false,
-    colors: [
+    dataInizioCalendario: "2024-05-10",
+    dataFineCalendario: "2024-05-31",
+    intervalloMinuti: 30,
+    oraInizioLavoro: 6,
+    oraFineLavoro: 21,
+    colors: ["red",
+      "teal",
+      "light-blue",
+      "lime",
+      "amber",
+      "blue-grey",
+      "deep-orange",
       "blue",
       "indigo",
       "deep-purple",
@@ -344,35 +252,62 @@ export default {
       "primary",
       "pink",
       "purple",
+      "red darken-1",
+      "teal darken-1",
+      "light-blue darken-1",
+      "lime darken-1",
+      "amber darken-1",
+      "blue-grey darken-1",
+      "deep-orange darken-1",
+      "blue darken-1",
+      "indigo darken-1",
+      "deep-purple darken-1",
+      "cyan darken-1",
+      "green darken-1",
+      "orange darken-1",
+      "grey darken-2",
+      "primary darken-1",
+      "pink darken-1",
+      "purple darken-1",
+      "red darken-2",
+      "teal darken-2",
+      "light-blue darken-2",
+      "lime darken-2",
+      "amber darken-2",
+      "blue-grey darken-2",
+      "deep-orange darken-2",
+      "blue darken-2",
+      "indigo darken-2",
+      "deep-purple darken-2",
+      "cyan darken-2",
+      "green darken-2",
+      "orange darken-2",
+      "grey darken-3",
+      "primary darken-2",
+      "pink darken-2",
+      "purple darken-2"
     ],
-    titles: ["Schampo Taglio Barba", "Schampo Taglio", "Taglio", "Permanente"],
-    events: [],
-    prenotazioni: [],
-    prenotazione: {
-      cliente: "Francesco Tammaro",
-      tipologia: "Barba#Capelli",
-      data: "2024-05-24",
-      oraInizio: "08:30",
-      oraFine: "09:00",
-      name: "test",
-      cellulare: "3922827514",
+
+    dialog: true,
+
+    manual: false,
+    dataBestOccurence: [],
+
+    menuDate: false,
+    menuTime: false,
+
+    selectedSlots: [],
+    type: "week",
+    focus: "",
+    isDay: false,
+    isWeek: false,
+    isMouth: false,
+    typeToLabel: {
+      month: "Mese",
+      week: "Settimana",
+      day: "Giorno",
     },
-    items: [
-      {
-        value: 0,
-        text: "Barba",
-      },
-      {
-        value: 1,
-        text: "Capelli",
-      },
-    ],
-    data: "2024-05-25",
-    time: "07:30",
-    clienti: [],
-    autocomplete: true,
-    selectedWeekDays: [],
-    availableSlots: [],
+    week: [2, 3, 4, 5, 6],
     weekDays: [
       { text: "Martedì", value: 2 },
       { text: "Mercoledì", value: 3 },
@@ -380,15 +315,46 @@ export default {
       { text: "Venerdì", value: 5 },
       { text: "Sabato", value: 6 },
     ],
-    activePicker: null,
+    startInterval: 3,
+    selectedEvent: {},
+    selectedElement: null,
+    selectedOpen: false,
+    events: [],
+    prenotazioni: [],
     date: null,
+    prenotazione: {
+      cliente: "Francesco Tammaro",
+      note: "Barba e Capelli",
+      dataOraInizio: "",
+      dataOraFine: "",
+      name: "test",
+      cellulare: "3922827514",
+      recurring: false,
+      recurringGruppId: 0,
+      frequenza: 0 //  0 numero settimane prenotazione riservata ! 
+    },
+    pfText: "",
+    data: "2024-05-28",
+    time: "07:30",
+    clienti: [],
+    autocomplete: true,
+    selectedWeekDays: [],
+    availableSlots: [],
+
+    activePicker: null,
+
     menu: false,
   }),
 
   mounted() {
     console.log("calendar", this.$refs.calendar);
-    console.log("PRENOTAZIONI ", this.prenotazioni);
-    (this.type = "week"), (this.isWeek = true);
+    setInterval(() => {
+      this.reload()
+    }, 3600000); // 1000 ms = 1 secondo
+    this.setToday();
+    (this.isDay = true);
+
+
   },
   created() {
     console.log(window);
@@ -404,13 +370,8 @@ export default {
     },
   },
   methods: {
-    async reload() {
+    reload() {
       ipcRenderer.send("reload");
-      // Rimuovi eventuali vecchi listener per evitare duplicati
-      ipcRenderer.removeAllListeners("reload");
-      ipcRenderer.on("risposta", async (e, data) => {
-        console.log(data);
-      });
     },
     async getEvents() {
       const events = [];
@@ -426,7 +387,7 @@ export default {
               name: element.cliente,
               datail: element,
               start: element.dataOraInizio,
-              end:element.dataOraFine,
+              end: element.dataOraFine,
               color: this.colors[this.rnd(0, this.colors.length - 1)],
               timed: true,
             });
@@ -435,9 +396,30 @@ export default {
       });
       this.events = events;
     },
+    async getClienti() {
+      ipcRenderer.send("load-clienti", {});
+      // Rimuovi eventuali vecchi listener per evitare duplicati
+      ipcRenderer.removeAllListeners("risposta");
+      ipcRenderer.once("risposta", async (e, data) => {
+        const clienti = data;
+        console.log("clienti", clienti);
+      });
+    },
+
     async insertPrenotazione(prenotazione) {
       console.log(prenotazione);
-      ipcRenderer.send("save-prenotazione", { prenotazione });
+      let prenotazioneSend = {
+        name: prenotazione.cliente,
+        cliente: prenotazione.cliente,
+        dataOraInizio: prenotazione.data + " " + prenotazione.oraInizio,
+        dataOraFine: prenotazione.data + " " + prenotazione.oraFine,
+        cellulare: prenotazione.cellulare,
+        note: prenotazione.note,
+        recurringGruppId: 0,
+        recurring: false,
+        frequenza: 0
+      }
+      ipcRenderer.send("save-prenotazione", { prenotazioneSend });
       // Rimuovi eventuali vecchi listener per evitare duplicati
       ipcRenderer.removeAllListeners("risposta");
       ipcRenderer.on("risposta", async (e, data) => {
@@ -447,6 +429,7 @@ export default {
       this.dialog = false;
       this.resetModelPrenotazione();
       await this.getEvents();
+      this.reload();
     },
     async onDeletePrenotazione(prenotazione) {
       console.log("delete", prenotazione);
@@ -458,12 +441,13 @@ export default {
         console.log(data);
       });
       await this.getEvents();
+      this.reload();
     },
-   
 
-  
 
-   
+
+
+
 
     mapValuesToText(values) {
       return values
@@ -484,26 +468,24 @@ export default {
     resetModelPrenotazione() {
       (this.prenotazione = {
         cliente: "",
-        tipologia: "",
-        data: "",
-        oraInizio: "",
-        oraFine: "",
+        note: "",
+        dataOraInizio: "",
+        dataOraFine: "",
         name: "test",
         cellulare: "",
-        recurringGruppId:0,
-        recurring:false,
+        recurringGruppId: 0,
+        recurring: false,
         frequenza: 0 //  0 numero settimane prenotazione riservata ! 
       }),
         (this.time = null),
         (this.date = null),
         (this.menuDate = false),
-        (this.menuTime = false),
-        (this.tipologia = []);
+        (this.menuTime = false)
     },
 
     setToday() {
       this.type = "day";
-      this.focus = "";
+      this.focus = this.$refs.calendar.times.today.date;
     },
     setWeek() {
       this.type = "week";
@@ -516,15 +498,15 @@ export default {
       this.$refs.calendar.next();
     },
     getFirstInterval() {
-      const startHour = 6; // Ora di inizio (8:00)
-      const intervalMinutes = 15; // Intervallo in minuti
+      const startHour = this.oraInizioLavoro; // Ora di inizio (8:00)
+      const intervalMinutes = this.intervalloMinuti; // Intervallo in minuti
       return (startHour * 60) / intervalMinutes; // Conversione dell'ora in minuti
     },
     // Logica per ottenere il conteggio degli intervalli nel calendario
     getIntervalCount() {
-      const startHour = 6; // Ora di inizio (8:00)
-      const endHour = 21; // Ora di fine (21:00)
-      const intervalMinutes = 15; // Intervallo in minuti
+      const startHour = this.oraInizioLavoro; // Ora di inizio (8:00)
+      const endHour = this.oraFineLavoro; // Ora di fine (21:00)
+      const intervalMinutes = this.intervalloMinuti; // Intervallo in minuti
       return ((endHour - startHour) * 60) / intervalMinutes; // Conversione delle ore in minuti e divisione per l'intervallo
     },
     showEvent({ nativeEvent, event }) {
@@ -549,7 +531,7 @@ export default {
       console.log(prenotazione);
     },
 
-   
+
 
     rnd(a, b) {
       return Math.floor((b - a + 1) * Math.random()) + a;
@@ -568,7 +550,9 @@ export default {
       const currentMonth = currentDate.getMonth();
       const currentYear = currentDate.getFullYear();
       const currentDay = currentDate.getDate();
-      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      // const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+
       const isSlotAvailable = (slotStart, slotEnd) => {
         const slotStartDate = new Date(slotStart);
         const slotEndDate = new Date(slotEnd);
@@ -578,36 +562,64 @@ export default {
           return slotStartDate < eventEndDate && slotEndDate > eventStartDate;
         });
       };
-      for (let day = currentDay; day <= daysInMonth; day++) {
-        const currentDate = new Date(currentYear, currentMonth, day);
-        const dayOfWeek = currentDate.getDay();
-        if (!this.selectedWeekDays.includes(dayOfWeek)) {
-          continue;
-        }
-        const min = new Date(
-          currentDate.getFullYear(),
-          currentDate.getMonth(),
-          currentDate.getDate(),
-          6,
-          30
-        );
-        const max = new Date(
-          currentDate.getFullYear(),
-          currentDate.getMonth(),
-          currentDate.getDate(),
-          20,
-          30
-        );
-        let currentTime = new Date(min);
-        while (currentTime < max) {
-          const slotStart = this.formatDate(currentTime);
-          const slotEnd = this.formatDate(
-            new Date(currentTime.getTime() + slotDuration * 60000)
-          );
-          if (slotEnd <= this.formatDate(max) && isSlotAvailable(slotStart, slotEnd)) {
-            availableSlots.push({ start: slotStart, end: slotEnd });
+
+
+
+      let mounthCalcolo = currentMonth;
+      let dayCalcolo = currentDay;
+      let yearCalcolor = currentYear;
+      let fistRun = false;
+      while (availableSlots.length == 0) {
+
+     
+        if (fistRun) {
+          if (availableSlots.length == 0) {
+            if (mounthCalcolo == 12) {
+              mounthCalcolo = 1
+            } else {
+              mounthCalcolo += 1
+              console.log(mounthCalcolo + "mounthCalcolo");
+            }
+            dayCalcolo = 1;
           }
-          currentTime = new Date(currentTime.getTime() + slotDuration * 60000);
+        }
+        fistRun = true;
+        const daysInMonthCalcolo = new Date(yearCalcolor, mounthCalcolo + 1, 0).getDate();
+        for (let day = dayCalcolo; day <= daysInMonthCalcolo; day++) {
+          const currentDateCalcolo = new Date(yearCalcolor, mounthCalcolo, day)
+          console.log("currentDateCalcolo", currentDateCalcolo);
+          const dayOfWeek = currentDateCalcolo.getDay();
+          if (!this.selectedWeekDays.includes(dayOfWeek)) {
+            console.log("continue");
+            continue;
+          }
+          const min = new Date(
+            currentDateCalcolo.getFullYear(),
+            currentDateCalcolo.getMonth(),
+            currentDateCalcolo.getDate(),
+            6,
+            30
+          );
+          const max = new Date(
+            currentDateCalcolo.getFullYear(),
+            currentDateCalcolo.getMonth(),
+            currentDateCalcolo.getDate(),
+            20,
+            30
+          );
+          console.log("min" + min);
+          console.log("max" + max);
+          let currentTime = new Date(min);
+          while (currentTime < max) {
+            const slotStart = this.formatDate(currentTime);
+            const slotEnd = this.formatDate(
+              new Date(currentTime.getTime() + slotDuration * 60000)
+            );
+            if (slotEnd <= this.formatDate(max) && isSlotAvailable(slotStart, slotEnd)) {
+              availableSlots.push({ start: slotStart, end: slotEnd });
+            }
+            currentTime = new Date(currentTime.getTime() + slotDuration * 60000);
+          }
         }
       }
       return availableSlots;
@@ -664,25 +676,34 @@ export default {
     },
     date: function (params) {
       if (params) {
-        console.log(params);
-        this.prenotazione.data = params;
+        this.prenotazione.dataOraInizio = params;
+        this.prenotazione.dataOraFine = params;
       }
     },
     time: function (params) {
       if (params) {
         console.log(params);
-        this.prenotazione.oraInizio = params;
-          this.prenotazione.oraFine = this.addTimeToTimeString(params, 0, 30);
-          this.dataBestOccurence = this.getAvailableSlotsForOperation(30);
-        
+        let data = this.prenotazione.dataOraInizio;
+        this.prenotazione.dataOraInizio = data + " " + params;
+        const oraFine = this.addTimeToTimeString(params, 0, 30);
+        this.prenotazione.dataOraFine = data + " " + oraFine;
+
       }
     },
-    tipologia: function (newVal) {
-      if (newVal) {
-        this.prenotazione.tipologia = this.mapValuesToText(newVal);
-        console.log("Mapped tipologia:", this.prenotazione.tipologia);
+    'prenotazione.recurring': function (params) {
+
+      console.log(params);
+      if (params) {
+        this.prenotazione.frequenza = 1;
+      } else {
+        this.prenotazione.frequenza = 0;
       }
     },
+    '$ref.calendar': function (params) {
+      if (params) {
+        console.log("Calendar Watch", params);
+      }
+    }
   },
 };
 </script>
